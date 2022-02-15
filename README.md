@@ -32,7 +32,7 @@ Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" rea
 
 Das iRadioMini benötigt als Grundvoraussetzung eine Installation des Espressif ADF und IDF. Diese Frameworks können von den offziellen Quellen, wie auch aus meinem BM45-github bezogen werden. ( https://github.com/BM45/esp-adf / https://github.com/BM45/esp-idf )
 
-Nach dem Clonen des iRadioMini für ESP32 in die lokale Arbeitskopie, kann die Firmware mit 
+Nach dem Clonen des iRadioMini für ESP32 in die lokale Entwicklungsumgebung, kann die Firmware mit 
 
 `idf.py build` 
 
