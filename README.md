@@ -44,3 +44,18 @@ Die Consolen und Debugausgaben können mit
 
 betrachtet werden.
 
+## WiFi-Zugangsdaten und Senderliste:
+
+#### WiFi 
+Es kann eine wifi.txt (mit gleichem Inhalt wie wpa_supplicant.conf des iRadio für Raspberry)
+in das Rootverzeichnis einer FAT-formatierten SD-Karte abgelegt werden. Nach einem Neustart des Audio Boards werden die WiFi-Zugangsdaten auf der Datei wifi.txt verwendet.
+
+#### Senderliste
+
+Es wird eine Datei playlist.m3u in das Rootverzeichnis einer FAT-formatierten SD-Karte abgelegt. 
+Nach einem Neustart wird die Senderliste des Internetradios automatisch aktualisiert.
+Achtung: In der playlist.m3u darf pro Zeile nur die URL einer Internetradiostation stehen. Keine M3U-Metadaten oder verschachtelte Playlisten verwenden!
+Standardmäßig werden Internetradiostreams in den Formaten MP3, AAC, M4A, WAV akzeptiert. 
+Weitere Formatedekoder (FLAC, OGG) können innerhalb der Software aktiviert werden.
+
+
