@@ -25,6 +25,8 @@ Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" rea
  
 - PWM-Servo getriebene Analogskale zum Beispiel für Programmplatz und Lautstärke
 
+[![servovideo](http://img.youtube.com/vi/fL3GbyHzpOE/0.jpg)](http://www.youtube.com/watch?v=fL3GbyHzpOE "")
+
 # Installation:
 
 Das iRadioMini benötigt als Grundvoraussetzung eine Installation des Espressif ADF und IDF. Diese Frameworks können von den offziellen Quellen, wie auch aus meinem BM45-github bezogen werden. ( https://github.com/BM45/esp-adf / https://github.com/BM45/esp-idf )
