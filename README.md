@@ -61,4 +61,7 @@ Achtung: In der playlist.m3u darf pro Zeile nur die URL einer Internetradiostati
 Standardmäßig werden Internetradiostreams in den Formaten MP3, AAC, M4A, WAV akzeptiert. 
 Weitere Formatedekoder (FLAC, OGG) können innerhalb der Software aktiviert werden.
 
+_____________________________________________________________________________________
+Weiterer Support im Radio-Bastler-Forum unter: https://www.radio-bastler.de 
 
+Bei Fragen meldet Euch einfach im Radio-Bastler-Forum an.
