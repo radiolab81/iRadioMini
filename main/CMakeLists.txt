@@ -1,0 +1,18 @@
+set(COMPONENT_SRCS "iRadioMini.c" 
+		   "./modules/utils.c"
+		   "./modules/player.c"
+		   "./modules/gpiod.c"
+		   "./modules/gpiod_rotary.c"
+		   "./modules/sdcard.c"
+		   "./modules/httpd.c"
+		   
+		   "./modules/display/ssd1306OLED/u8g2_esp32_hal.c"
+		   "./modules/display/ssd1306OLED/displayd_i2c.c"
+
+		   "./modules/display/servo/servo.c" )
+
+set(COMPONENT_ADD_INCLUDEDIRS "./modules")
+
+register_component()
+
+
