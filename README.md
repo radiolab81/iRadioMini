@@ -1,5 +1,5 @@
 # iRadioMini für ESP32
-Ein Softwarebaukasten für den Aufbau neuer Radios oder dem Umbau alter Radios zu einem Internetradio auf ESP32 ADF-Basis.
+Ein Softwarebaukasten für den Aufbau neuer Radios oder Umbau alter Radios zu einem Internetradio auf ESP32 ADF-Basis.
 
 Das iRadioMini ist eine Portierung unseres iRadio für Raspberry (https://github.com/BM45/iRadio) auf ESP32. 
 
