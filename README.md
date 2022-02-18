@@ -15,7 +15,7 @@ sowie natürlich auch zahlreiche Nachbauten dieser, mit einem der bastlerfreundl
 
 ![adfboard3](https://github.com/BM45/iRadioMini/blob/master/pics4www/ESP32.jpg)
 
-Auch komplette eigene ESP32 Audio Boards sind natürlich möglich, sofern das eigene Design als Board im ADF integriert wird.
+Auch komplette eigene ESP32 Audio Boards sind natürlich möglich, sofern das eigene Design als Board im ADF hinterlegt wird.
 
 ## Steuerung des iRadioMini durch:
 
