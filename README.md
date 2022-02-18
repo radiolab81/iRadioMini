@@ -5,11 +5,18 @@ Das iRadioMini ist eine Portierung unseres iRadio für Raspberry (https://github
 
 ## Unterstützte Boards:
 
-Das iRadioMini für ESP32 unterstützt alle ESP32 Boards aus dem Espressif Audio Development Framework. 
+Das iRadioMini für ESP32 unterstützt alle ESP32 Boards aus dem Espressif Audio Development Framework
 
 ![adfboard1](https://github.com/BM45/iRadioMini/blob/master/pics4www/esp32-audiokit.jpg)
 
 ![adfboard2](https://github.com/BM45/iRadioMini/blob/master/pics4www/boards.jpg)
+
+sowie natürlich auch zahlreiche Nachbauten dieser, mit einem der bastlerfreundlichen ESP32-WROOM 32/WROVER Boards.
+
+![adfboard3](https://github.com/BM45/iRadioMini/blob/master/pics4www/ESP32.jpg)
+
+Auch komplette eigene ESP32 Audio Boards sind natürlich möglich, sofern das eigene Design als Board im ADF integriert wird.
+
 ## Steuerung des iRadioMini durch:
 
 Programmumschaltung / Lautstärkeänderung mit (Micro-)Taster, Inkrementaldrehgeber, Drehimpulsgeber oder fernsteuerbar über HTML-Bedienoberfläche. 
