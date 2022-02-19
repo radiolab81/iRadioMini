@@ -38,7 +38,11 @@ void create_audioplayer_pipeline(int channel_num) {
     http_stream_reader = http_stream_init(&http_cfg);
 
     ESP_LOGI(TAG, "[ 2.2 ] Create i2s stream to write data to codec chip");
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+    #ifdef USE_INTERNAL_AUDIODAC
+      i2s_stream_cfg_t i2s_cfg = I2S_STREAM_INTERNAL_DAC_CFG_DEFAULT();
+    #else
+      i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+    #endif 	
     i2s_cfg.type = AUDIO_STREAM_WRITER;
     i2s_stream_writer = i2s_stream_init(&i2s_cfg);
 

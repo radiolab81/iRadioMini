@@ -4,6 +4,8 @@
 #include "audio_pipeline.h"
 #include "periph_wifi.h"
 
+//#define USE_INTERNAL_AUDIODAC
+
 #define MAX_CHANNELS_IN_LIST 100
 char* playlist[MAX_CHANNELS_IN_LIST];
 int   channels_in_list;
