@@ -206,18 +206,18 @@ void playerControlTask( void * pvParameters )
         if (rxMsg->ucMessage==NEXT_PRG) {
           if (actual_channel<(channels_in_list-1))
 	    actual_channel++;
-          else 
+          else { 
 	    actual_channel=0;
-  		
+	  }	
 	    switchToChannel(actual_channel);
         } // if (rxMsg->ucMessage==NEXT_PRG) {
 
 	if (rxMsg->ucMessage==PREV_PRG) {
           if (actual_channel==0)
 	     actual_channel=(channels_in_list-1);
-          else 
+          else {
 	    actual_channel--;    
-	
+	  }
 	    switchToChannel(actual_channel);
         } // if (rxMsg->ucMessage==PREV_PRG) {
 
