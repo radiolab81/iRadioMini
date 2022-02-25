@@ -37,6 +37,10 @@ Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" rea
 ![lvgl2](https://github.com/BM45/iRadioMini/blob/master/pics4www/lvgl_disp.jpg)
 ![lvgl3](https://github.com/BM45/iRadioMini/blob/master/pics4www/lvgl_indev.jpg)
 
+Ein besonderes Highlight ist die Simulation photorealistischer Nachbildungen von Senderskalen alter Radios.
+
+![lvgl4](https://github.com/BM45/iRadioMini/blob/master/pics4www/ESP32Skalensim.jpg)
+
 
 - PWM-Servo getriebene Analogskale zum Beispiel für Programmplatz und Lautstärke ist eine weitere Möglichkeit.
 
