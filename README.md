@@ -40,9 +40,14 @@ Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" rea
 Ein besonderes Highlight ist die Simulation photorealistischer Nachbildungen von Senderskalen alter Radios.
 
 ![lvgl4](https://github.com/BM45/iRadioMini/blob/master/pics4www/ESP32Skalensim.jpg)
+![lvgl5](https://github.com/BM45/iRadioMini/blob/master/pics4www/MendeWSim.jpg)
+
+oder einer animierten Kassettensimulation zum Einbau eines Displays in alte Kassettenrecoder.
+
+![lvgl6](https://github.com/BM45/iRadioMini/blob/master/pics4www/cass_sim.jpg)
 
 
-- PWM-Servo getriebene Analogskale zum Beispiel für Programmplatz und Lautstärke ist eine weitere Möglichkeit.
+- PWM-Servo getriebene Analogskalen, zum Beispiel für Programmplatz und Lautstärke, sind eine weitere Möglichkeit.
 
 [![servovideo](http://img.youtube.com/vi/fL3GbyHzpOE/0.jpg)](http://www.youtube.com/watch?v=fL3GbyHzpOE "")
 
