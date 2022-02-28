@@ -26,6 +26,9 @@ static audio_event_iface_handle_t evt;
 static audio_pipeline_handle_t pipeline;
 static audio_element_handle_t http_stream_reader, i2s_stream_writer, esp_decoder;
 
+static unsigned int volume = 40;
+#define VOLUME_INC_DEC_STEP 3  // volume changes in %
+
 
 void create_audioplayer_pipeline(int channel_num) {
     ESP_LOGI(TAG, "[ 2.0 ] Create audio pipeline for playback");
@@ -87,6 +90,7 @@ void create_audioplayer_pipeline(int channel_num) {
     ESP_LOGI(TAG, "[ 3.0 ] Start audio_pipeline");
     audio_pipeline_run(pipeline);
     pipeline_ready = true;    
+
 }
 
 void terminate_audioplayer_pipeline() {
@@ -115,6 +119,7 @@ void terminate_audioplayer_pipeline() {
     audio_element_deinit(http_stream_reader);
     audio_element_deinit(i2s_stream_writer);
     audio_element_deinit(esp_decoder);
+
 }
 
 
@@ -126,7 +131,7 @@ void player(void *pvParameters) {
 
     ESP_LOGI(TAG, "[ 1.1 ] Start audio codec chip");
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START); 
-    audio_hal_set_volume(board_handle->audio_hal,40); // default volume 
+    audio_hal_set_volume(board_handle->audio_hal,volume); // default volume 
 
     ESP_LOGI(TAG, "[ 1.2 ] Start and wait for Wi-Fi network");
     esp_periph_handle_t wifi_handle = periph_wifi_init(&wifi_cfg);
@@ -230,6 +235,25 @@ void playerControlTask( void * pvParameters )
 	  if (pipeline_ready)
             audio_pipeline_resume(pipeline);
         } // if (rxMsg->ucMessage==PLAY) {
+
+        if (rxMsg->ucMessage==VOLUP) {
+	  if (pipeline_ready) {
+            if (volume<100-VOLUME_INC_DEC_STEP) {
+              volume+=VOLUME_INC_DEC_STEP;
+              audio_hal_set_volume(board_handle->audio_hal,volume);
+            }
+	  }
+        } // if (rxMsg->ucMessage==VOLUP) {
+
+        if (rxMsg->ucMessage==VOLDOWN) {
+	  if (pipeline_ready) {
+            if (volume>0+VOLUME_INC_DEC_STEP) {
+              volume-=VOLUME_INC_DEC_STEP;
+              audio_hal_set_volume(board_handle->audio_hal,volume);
+            }
+	  }
+        } // if (rxMsg->ucMessage==VOLDOWN) {
+
 
 	// Anforderung Kanalinfo -> Antwort über xDisplaydQueue
         if (rxMsg->ucMessage==GET_CHANNEL_INFO) {

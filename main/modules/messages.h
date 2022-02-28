@@ -8,6 +8,9 @@
 #define STOP 	 12
 #define PLAY     13
 
+#define VOLUP 	 20
+#define VOLDOWN  21
+
 #define GET_CHANNEL_INFO 	30
 
 struct AMessage
