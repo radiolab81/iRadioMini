@@ -14,7 +14,6 @@
 #include "modules/player.h"
 #include "modules/messages.h"
 
-
 #include "modules/gpiod.h"
 #include "modules/gpiod_rotary.h"
 
@@ -23,6 +22,8 @@
 #include "modules/display/ssd1306OLED/displayd_i2c.h"
 
 #include "modules/display/servo/servo.h"
+
+#include "modules/display/HD44780_I2C/displayd_HD44780_i2c.h"
 
 #if __has_include("esp_idf_version.h")
 #include "esp_idf_version.h"

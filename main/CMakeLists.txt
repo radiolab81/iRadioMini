@@ -9,9 +9,12 @@ set(COMPONENT_SRCS "iRadioMini.c"
 		   "./modules/display/ssd1306OLED/u8g2_esp32_hal.c"
 		   "./modules/display/ssd1306OLED/displayd_i2c.c"
 
+		   "./modules/display/HD44780_I2C/displayd_HD44780_i2c.c"
+
 		   "./modules/display/servo/servo.c" )
 
 set(COMPONENT_ADD_INCLUDEDIRS "./modules")
+set(EXTRA_COMPONENT_DIRS "./components")
 
 register_component()
 
