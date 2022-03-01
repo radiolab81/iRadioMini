@@ -53,7 +53,8 @@ oder eine animierten Kassettensimulation zum Einbau eines Displays in alte Kasse
 
 ## Unterstützte Audio-DACs:
 
-Zur Zeit werden alle vom ESP-ADF unterstützten Audio-DACs, wie ES7148, 7210, 7243(e), 8156, 8311, 8374, 8388, TAS5805M, ZL38063, direkt auch im iRadioMini unterstützt. Zusätzlich können die internen DACs des ESP32 und GPIO-Pins zur PDM/PWM-Audioausgabe genutzt werden.
+Zur Zeit werden alle vom ESP-ADF unterstützten Audio-DACs direkt auch im iRadioMini unterstützt. 
+Zusätzlich können die internen DACs des ESP32 und GPIO-Pins zur PDM/PWM-Audioausgabe genutzt werden.
 
 # Installation:
 
