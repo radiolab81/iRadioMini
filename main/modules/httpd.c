@@ -56,6 +56,20 @@ esp_err_t get_handler(httpd_req_t *req)
 	       pxMessage = &xMessage; 
 	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
+
+            if (!strcmp(variable,"Vol%2B")) {
+               struct AMessage *pxMessage;
+               xMessage.ucMessage = VOLUP;
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+            }
+
+            if (!strcmp(variable,"Vol-")) {
+               struct AMessage *pxMessage;
+               xMessage.ucMessage = VOLDOWN;
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+            }
         } // if (httpd_query_key_value(buf, "command", variable, sizeof(variable)) == ESP_OK) {
       } //  if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
  
@@ -89,10 +103,13 @@ esp_err_t get_handler(httpd_req_t *req)
 <center> \
 <h1>iRadioMini for ESP32</h1> \
 \
+<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Prev\"class=\"button button1\"/> \
 <form action=\"\"  method=\"get\"><input name=\"command\" type=\"submit\" value=\"Next\"class=\"button button1\"/> \
-<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Prev\"class=\"button button1\"/>  \
 <form action=\"\"  method=\"get\"><input name=\"command\" type=\"submit\" value=\"Stop\"class=\"button button1\"/> \
-<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Play\"class=\"button button1\"/></form> </center> \
+<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Play\"class=\"button button1\"/> \
+<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol-\"class=\"button button1\"/> \
+<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button button1\"/> \
+</form> </center> \
 </body> \
 </html> \
 ";
@@ -190,6 +207,3 @@ void httpd(void *pvParameters) {
 
   stop_webserver(hnd);
 }
-
-
-
