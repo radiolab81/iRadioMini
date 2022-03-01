@@ -37,12 +37,12 @@ Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" rea
 ![lvgl2](https://github.com/BM45/iRadioMini/blob/master/pics4www/lvgl_disp.jpg)
 ![lvgl3](https://github.com/BM45/iRadioMini/blob/master/pics4www/lvgl_indev.jpg)
 
-Ein besonderes Highlight ist die Simulation photorealistischer Nachbildungen von Senderskalen alter Radios.
+Ein besonderes Highlight ist die Simulation photorealistischer Nachbildungen von Senderskalen alter Radios,
 
 ![lvgl4](https://github.com/BM45/iRadioMini/blob/master/pics4www/ESP32Skalensim.jpg)
 ![lvgl5](https://github.com/BM45/iRadioMini/blob/master/pics4www/MendeWSim.jpg)
 
-oder einer animierten Kassettensimulation zum Einbau eines Displays in alte Kassettenrecoder.
+oder eine animierten Kassettensimulation zum Einbau eines Displays in alte Kassettenrecoder.
 
 ![lvgl6](https://github.com/BM45/iRadioMini/blob/master/pics4www/cass_sim.jpg)
 
@@ -50,6 +50,10 @@ oder einer animierten Kassettensimulation zum Einbau eines Displays in alte Kass
 - PWM-Servo getriebene Analogskalen, zum Beispiel für Programmplatz und Lautstärke, sind eine weitere Möglichkeit.
 
 [![servovideo](http://img.youtube.com/vi/fL3GbyHzpOE/0.jpg)](http://www.youtube.com/watch?v=fL3GbyHzpOE "")
+
+## Unterstützte Audio-DACs:
+
+Zur Zeit werden alle vom ESP-ADF unterstützten Audio-DACs, wie ES7148, 7210, 7243(e), 8156, 8311, 8374, 8388, TAS5805M, ZL38063, direkt auch im iRadioMini unterstützt. Zusätzlich können die internen DACs des ESP32 und GPIO-Pins zur PDM/PWM-Audioausgabe genutzt werden.
 
 # Installation:
 
