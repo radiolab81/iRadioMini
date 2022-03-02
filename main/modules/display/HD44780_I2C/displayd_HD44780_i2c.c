@@ -111,7 +111,7 @@ void displayd_HD44780_i2c(void *pvParameters) {
         vTaskDelay(1000/portTICK_PERIOD_MS ); 
     }
 
-	
-	vTaskDelete(NULL);
+   pcf8574_free_desc(&pcf8574);
+   vTaskDelete(NULL);
 }
 
