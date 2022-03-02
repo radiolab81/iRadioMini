@@ -24,6 +24,7 @@ Programmumschaltung / Lautstärkeänderung mit (Micro-)Taster, Inkrementaldrehge
 Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" realisiert.
 
 ## Unterstützte Displays für Nutzerschnittstelle:
+- HD44780-kompatible Displays (auch über I2C mit PCF8574/5)
 
 - über U8g2 (U8g2 is a monochrome graphics library for embedded devices.)
 
