@@ -71,7 +71,7 @@ void app_main(void)
     // Suchen + Einlesen der AM.txt 
     /*if (readAMTXConfigSDCard()==ESP_OK) {
       if (TX_ENABLED) {
-	ESP_LOGI(TAG, "start AMTX-Daemon on %i kHz...",am_tx_freq);
+	ESP_LOGI(TAG, "start AMTX-Daemon on %i kHz...",am_tx_freq/1000);
         // - control queue of transmitterd process
         xTransmitterdQueue = xQueueCreate( 10, sizeof( struct ATransmitterdMessage * ) );
         if (!xTransmitterdQueue) {
