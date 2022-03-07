@@ -16,7 +16,7 @@ set(COMPONENT_SRCS "iRadioMini.c"
 		   "./modules/tx/transmitterd.c"
 		   "./modules/tx/AD9832/AD9832.c"
 		   "./modules/tx/AD9835/AD9835.c"
-		   "./modules/tx/AD9850/AD9850.c" )
+		    )
 
 set(COMPONENT_ADD_INCLUDEDIRS "./modules")
 set(EXTRA_COMPONENT_DIRS "./components")
