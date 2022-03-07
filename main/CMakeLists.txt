@@ -14,7 +14,6 @@ set(COMPONENT_SRCS "iRadioMini.c"
 		   "./modules/display/servo/servo.c"
 		
 		   "./modules/tx/transmitterd.c"
-		   "./modules/tx/AD9832/AD9832.c"
 		   "./modules/tx/AD9835/AD9835.c"
 		    )
 
