@@ -104,6 +104,7 @@ esp_err_t readAMTXConfigSDCard() {
 	am_tx_freq=atoi(read_str);
         if (am_tx_freq) {
           TX_ENABLED = true;
+	  am_tx_freq = am_tx_freq * 1000; // kHz
         }
         free(read_str);
         fclose(fp);
