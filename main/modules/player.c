@@ -258,7 +258,7 @@ void playerControlTask( void * pvParameters )
 	// Anforderung Kanalinfo -> Antwort über xDisplaydQueue
         if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
             xDisplaydMessage.ucMessage = GET_CHANNEL_INFO;
-	    xDisplaydMessage.uciChannelNum = actual_channel;
+	    xDisplaydMessage.iChannelNum = actual_channel;
 	    xDisplaydMessage.ucURI = playlist[actual_channel];
             
             audio_element_info_t music_info = {0};

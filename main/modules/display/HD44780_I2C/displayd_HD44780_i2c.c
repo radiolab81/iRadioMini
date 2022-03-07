@@ -79,7 +79,7 @@ void displayd_HD44780_i2c(void *pvParameters) {
 	 if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum);
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum);
                 ESP_LOGI(TAG, "music_info.sample_rates: %i",rxMsg->music_info.sample_rates);	
 		ESP_LOGI(TAG, "music_info.channels: %i",rxMsg->music_info.channels);	
 		ESP_LOGI(TAG, "music_info.bits: %i",rxMsg->music_info.bits);	
@@ -89,12 +89,12 @@ void displayd_HD44780_i2c(void *pvParameters) {
             } 
           }
  
-         if (old_ch!=rxMsg->uciChannelNum) {
+         if (old_ch!=rxMsg->iChannelNum) {
            hd44780_clear(&lcd);
            hd44780_gotoxy(&lcd, 0, 0);
            hd44780_putc(&lcd, 'P');
            hd44780_gotoxy(&lcd, 1, 0);
-           itoa(rxMsg->uciChannelNum,buffer,10);
+           itoa(rxMsg->iChannelNum,buffer,10);
            hd44780_puts(&lcd, buffer);
 
            hd44780_gotoxy(&lcd, 0, 1); 
@@ -102,9 +102,9 @@ void displayd_HD44780_i2c(void *pvParameters) {
 		rxMsg->ucURI[19]='\0';
 	   }
            hd44780_puts(&lcd, rxMsg->ucURI);
-         } // if (old_ch!=rxMsg->uciChannelNum) {
+         } // if (old_ch!=rxMsg->iChannelNum) {
    
-        old_ch = rxMsg->uciChannelNum;
+        old_ch = rxMsg->iChannelNum;
  
   
         ESP_LOGI(TAG, "Heartbeat");

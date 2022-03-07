@@ -145,16 +145,16 @@ void displayd_lvgl(void *pvParameters) {
        if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {  
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum); 
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum); 
    
-                if (old_ch!=rxMsg->uciChannelNum) {
+                if (old_ch!=rxMsg->iChannelNum) {
  
-                  itoa(rxMsg->uciChannelNum,buffer,10);
+                  itoa(rxMsg->iChannelNum,buffer,10);
                   lv_label_set_text(label_prog_num, buffer);
                   lv_label_set_text(label_url, rxMsg->ucURI);     
         
-                } // if (old_ch!=rxMsg->uciChannelNum) {
- 	       old_ch = rxMsg->uciChannelNum;
+                } // if (old_ch!=rxMsg->iChannelNum) {
+ 	       old_ch = rxMsg->iChannelNum;
  
             }
         }

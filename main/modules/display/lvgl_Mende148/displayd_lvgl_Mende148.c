@@ -138,20 +138,20 @@ void displayd_lvgl_Mende148(void *pvParameters) {
        if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {  
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum); 
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum); 
    
 	        // wurde umgeschaltet ?
-                if (old_ch!=rxMsg->uciChannelNum) {
+                if (old_ch!=rxMsg->iChannelNum) {
                 
 		  // bewege Skalenzeigen bis zur neuen Station
-                  while ( !( (pos_zeiger_now >= (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)-(SCHRITTWEITE/2)-1) &&
-			  (pos_zeiger_now <= (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)+(SCHRITTWEITE/2)+1) )) {
+                  while ( !( (pos_zeiger_now >= (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)-(SCHRITTWEITE/2)-1) &&
+			  (pos_zeiger_now <= (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)+(SCHRITTWEITE/2)+1) )) {
 
-                     if (pos_zeiger_now < (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)) {
+                     if (pos_zeiger_now < (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)) {
                        pos_zeiger_now+=SCHRITTWEITE;
 		     }
 		
-                     if (pos_zeiger_now > (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)) {
+                     if (pos_zeiger_now > (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)) {
                        pos_zeiger_now-=SCHRITTWEITE;
 		     }	
 		
@@ -162,8 +162,8 @@ void displayd_lvgl_Mende148(void *pvParameters) {
 	             vTaskDelay((1000/FPS)/portTICK_PERIOD_MS ); 
 	           }
             
-                } // if (old_ch!=rxMsg->uciChannelNum) {
- 	      old_ch = rxMsg->uciChannelNum;
+                } // if (old_ch!=rxMsg->iChannelNum) {
+ 	      old_ch = rxMsg->iChannelNum;
             }
         }
 

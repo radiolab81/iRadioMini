@@ -142,20 +142,20 @@ void displayd_lvgl_skale(void *pvParameters) {
        if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {  
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum); 
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum); 
    
 	        // wurde umgeschaltet ?
-                if (old_ch!=rxMsg->uciChannelNum) {
+                if (old_ch!=rxMsg->iChannelNum) {
                   lv_label_set_text(label_url, "\0");
  
 		  // bewege Skalenzeigen bis zur neuen Station
-                  while (pos_zeiger_now != (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)) {
+                  while (pos_zeiger_now != (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)) {
 
-                     if (pos_zeiger_now < (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)) {
+                     if (pos_zeiger_now < (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)) {
                        pos_zeiger_now++;
 		     }
 		
-                     if (pos_zeiger_now > (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->uciChannelNum)) {
+                     if (pos_zeiger_now > (ZEIGERANSCHLAG_LINKS + SENDERABSTAND*rxMsg->iChannelNum)) {
                        pos_zeiger_now--;
 		     }	
 
@@ -166,8 +166,8 @@ void displayd_lvgl_skale(void *pvParameters) {
                    // URI-Anzeige aktualisieren
                    lv_label_set_text(label_url, rxMsg->ucURI);     
         
-                } // if (old_ch!=rxMsg->uciChannelNum) {
- 	      old_ch = rxMsg->uciChannelNum;
+                } // if (old_ch!=rxMsg->iChannelNum) {
+ 	      old_ch = rxMsg->iChannelNum;
             }
         }
 

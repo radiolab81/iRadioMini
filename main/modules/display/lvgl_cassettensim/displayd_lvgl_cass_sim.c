@@ -140,7 +140,7 @@ void displayd_lvgl_cass_sim(void *pvParameters) {
        if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {  
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum); 
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum); 
    
 		// rotation angle resolution 0.1 
                 while (angle<1800) { // just 2pi/2
@@ -152,12 +152,12 @@ void displayd_lvgl_cass_sim(void *pvParameters) {
 		angle=0;
 
 	        // wurde umgeschaltet ?
-                if (old_ch!=rxMsg->uciChannelNum) {
+                if (old_ch!=rxMsg->iChannelNum) {
                    // URI-Anzeige aktualisieren
                    lv_label_set_text(label_url, rxMsg->ucURI);     
         
-                } // if (old_ch!=rxMsg->uciChannelNum) {
- 	      old_ch = rxMsg->uciChannelNum;
+                } // if (old_ch!=rxMsg->iChannelNum) {
+ 	      old_ch = rxMsg->iChannelNum;
             }
         }
 

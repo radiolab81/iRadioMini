@@ -25,6 +25,14 @@ periph_wifi_cfg_t readWifiConfigSDCard();
 void readPlaylistSDCard();
 
 
+/**
+ * @brief      Read AM-TX Configfile from sdcard. 
+ *
+ * @param      void
+ *
+ * @return     ESP_OK, ESP_FAIL
+ */
+esp_err_t readAMTXConfigSDCard();
 
 
 #endif

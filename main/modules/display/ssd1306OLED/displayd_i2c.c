@@ -65,7 +65,7 @@ void displayd_i2c(void *pvParameters) {
 	 if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum);
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum);
                 ESP_LOGI(TAG, "music_info.sample_rates: %i",rxMsg->music_info.sample_rates);	
 		ESP_LOGI(TAG, "music_info.channels: %i",rxMsg->music_info.channels);	
 		ESP_LOGI(TAG, "music_info.bits: %i",rxMsg->music_info.bits);	
@@ -84,7 +84,7 @@ void displayd_i2c(void *pvParameters) {
           // Kanalnummer
 	  u8g2_SetFont(&u8g2, u8g2_font_10x20_tr);
           u8g2_DrawStr(&u8g2, 2,17,"P");
-          itoa(rxMsg->uciChannelNum,buffer,10);
+          itoa(rxMsg->iChannelNum,buffer,10);
 	  u8g2_DrawStr(&u8g2, 14,17,buffer);
           
           // URI

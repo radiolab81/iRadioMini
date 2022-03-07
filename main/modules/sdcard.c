@@ -87,3 +87,35 @@ void readPlaylistSDCard() {
     }
 
 } 
+
+
+esp_err_t readAMTXConfigSDCard() {
+    esp_log_level_set(TAG, ESP_LOG_INFO);       
+    TX_ENABLED = false;
+    am_tx_freq = 0;
+
+    ESP_LOGI(TAG, "Try read AM.txt from sdcard");
+    FILE *fp = fopen("/sdcard/AM.txt", "r");
+    if(fp!=NULL) {
+      char *read_str = audio_calloc(1, 6); // audio_callc allocates SPI_RAM if available ob audio board
+      if (read_str!=NULL) {
+        fgets(read_str, 6, fp);
+        ESP_LOGI(TAG, "AM.txt: %s", read_str);
+	am_tx_freq=atoi(read_str);
+        if (am_tx_freq) {
+          TX_ENABLED = true;
+        }
+        free(read_str);
+        fclose(fp);
+       
+        if (TX_ENABLED) {
+           return ESP_OK;
+	}
+      }  
+    } else {
+      ESP_LOGE(TAG, "No AM.txt on sdcard!");
+      return ESP_FAIL;
+    }
+   
+    return ESP_FAIL;
+}

@@ -61,16 +61,16 @@ void displayd_servo(void *pvParameters) {
        if( xQueueReceive( xDisplaydQueue, &( rxMsg ), ( TickType_t ) 10 )  )
           {
             if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->uciChannelNum); 
-                if (old_ch!=rxMsg->uciChannelNum) {
-                   ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, MIN_SERVO_PULSBREITE+(rxMsg->uciChannelNum*SENDERABSTAND));
+		ESP_LOGI(TAG, "actual channel num: %i",rxMsg->iChannelNum); 
+                if (old_ch!=rxMsg->iChannelNum) {
+                   ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, MIN_SERVO_PULSBREITE+(rxMsg->iChannelNum*SENDERABSTAND));
 		   ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
 	
 		   gpio_set_level(TRIGGER_SERVO_PIN,1);
 		   vTaskDelay(2000/portTICK_PERIOD_MS);
 		   gpio_set_level(TRIGGER_SERVO_PIN,0);
-                } // if (old_ch!=rxMsg->uciChannelNum) {
- 	       old_ch = rxMsg->uciChannelNum;
+                } // if (old_ch!=rxMsg->iChannelNum) {
+ 	       old_ch = rxMsg->iChannelNum;
             }
         }
             

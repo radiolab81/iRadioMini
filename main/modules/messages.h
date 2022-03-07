@@ -23,7 +23,7 @@ struct AMessage
 struct ADisplaydMessage
 {
     char ucMessage;
-    int  uciChannelNum;
+    int  iChannelNum;
     char* ucURI;
     audio_element_info_t music_info;
 
@@ -31,5 +31,16 @@ struct ADisplaydMessage
 
 QueueHandle_t xPlayerQueue;
 QueueHandle_t xDisplaydQueue;
+
+
+struct ATransmitterdMessage
+{
+    char ucMessage;
+    uint32_t new_freq;
+
+} xTransmitterdMessage;
+
+#define SET_FREQ 50
+QueueHandle_t xTransmitterdQueue;
 
 #endif

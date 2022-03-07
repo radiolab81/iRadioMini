@@ -20,10 +20,11 @@
 #include "modules/httpd.h"
 
 #include "modules/display/ssd1306OLED/displayd_i2c.h"
+#include "modules/display/HD44780_I2C/displayd_HD44780_i2c.h"
 
 #include "modules/display/servo/servo.h"
 
-#include "modules/display/HD44780_I2C/displayd_HD44780_i2c.h"
+#include "modules/tx/transmitterd.h"
 
 #if __has_include("esp_idf_version.h")
 #include "esp_idf_version.h"
@@ -67,6 +68,21 @@ void app_main(void)
     wifi_cfg = readWifiConfigSDCard();
     readPlaylistSDCard();
 
+    // Suchen + Einlesen der AM.txt 
+    /*if (readAMTXConfigSDCard()==ESP_OK) {
+      if (TX_ENABLED) {
+	ESP_LOGI(TAG, "start AMTX-Daemon on %i kHz...",am_tx_freq);
+        // - control queue of transmitterd process
+        xTransmitterdQueue = xQueueCreate( 10, sizeof( struct ATransmitterdMessage * ) );
+        if (!xTransmitterdQueue) {
+          ESP_LOGE(TAG, "IPC:Transmitterd Message Queue failed");
+	}
+ 
+        TaskHandle_t xTransmitterdTaskHandle = NULL;
+        xTaskCreate( transmitterd, "transmitterd", 4096, NULL , tskIDLE_PRIORITY, &xTransmitterdTaskHandle );
+        configASSERT(xTransmitterdTaskHandle);
+       } 
+    }*/
 
     // Playerprozess starten
     ESP_LOGI(TAG, "prepare to start the player process");
@@ -118,7 +134,6 @@ void app_main(void)
     xTaskCreate( httpd, "httpd", 4096, NULL , tskIDLE_PRIORITY, &xhttpdHandle );
     configASSERT(xhttpdHandle);
 
- 
     // Daemonbetrieb - Hauptprozess
   
     while(1)
@@ -145,6 +160,9 @@ void app_main(void)
 
     if(xhttpdHandle)
       vTaskDelete(xhttpdHandle);
+
+ /* if(xTransmitterdTaskHandle)
+      vTaskDelete(xTransmitterdTaskHandle); */
 
     esp_periph_set_destroy(set);
 }
