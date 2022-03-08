@@ -25,6 +25,7 @@
 #include "modules/display/servo/servo.h"
 
 #include "modules/tx/transmitterd.h"
+#include "modules/tx/inet2RFd.h"
 
 #if __has_include("esp_idf_version.h")
 #include "esp_idf_version.h"
