@@ -67,23 +67,7 @@ void app_main(void)
     audio_board_sdcard_init(set, SD_MODE_1_LINE);
     wifi_cfg = readWifiConfigSDCard();
     readPlaylistSDCard();
-
-    // Suchen + Einlesen der AM.txt 
-    /*if (readAMTXConfigSDCard()==ESP_OK) {
-      if (TX_ENABLED) {
-	ESP_LOGI(TAG, "start AMTX-Daemon on %i kHz...",am_tx_freq/1000);
-        // - control queue of transmitterd process
-        xTransmitterdQueue = xQueueCreate( 10, sizeof( struct ATransmitterdMessage * ) );
-        if (!xTransmitterdQueue) {
-          ESP_LOGE(TAG, "IPC:Transmitterd Message Queue failed");
-	}
- 
-        TaskHandle_t xTransmitterdTaskHandle = NULL;
-        xTaskCreate( transmitterd, "transmitterd", 4096, NULL , tskIDLE_PRIORITY, &xTransmitterdTaskHandle );
-        configASSERT(xTransmitterdTaskHandle);
-       } 
-    }*/
-
+    
     // Playerprozess starten
     ESP_LOGI(TAG, "prepare to start the player process");
     TaskHandle_t xPlayerTaskHandle = NULL;
@@ -108,6 +92,26 @@ void app_main(void)
     xTaskCreate( playerControlTask, "playerControlTask", 4096, NULL , tskIDLE_PRIORITY, &xPlayerControlTaskHandle );
     configASSERT(xPlayerControlTaskHandle);
  
+    // Suchen + Einlesen der AM.txt 
+    /*if (readAMTXConfigSDCard()==ESP_OK) {
+      if (TX_ENABLED) {
+        vTaskDelay(5000/portTICK_PERIOD_MS );
+	ESP_LOGI(TAG, "start AMTX-Daemon on %i kHz...",am_tx_freq/1000);
+        // - control queue of transmitterd process
+        xTransmitterdQueue = xQueueCreate( 10, sizeof( struct ATransmitterdMessage * ) );
+        if (!xTransmitterdQueue) {
+          ESP_LOGE(TAG, "IPC:Transmitterd Message Queue failed");
+	}
+ 
+        TaskHandle_t xTransmitterdTaskHandle = NULL;
+        xTaskCreate( transmitterd, "transmitterd", 4096, NULL , tskIDLE_PRIORITY, &xTransmitterdTaskHandle );
+        configASSERT(xTransmitterdTaskHandle);
+
+        //TaskHandle_t xinet2RDdTaskHandle = NULL;
+        //xTaskCreate( inet2RFd, "inet2RFd", 4096, NULL , tskIDLE_PRIORITY, &xinet2RDdTaskHandle );
+        //configASSERT(xinet2RDdTaskHandle);
+       } 
+    }*/
 
     // Prozess gpiod starten
     TaskHandle_t xgpiodHandle = NULL;
@@ -163,6 +167,9 @@ void app_main(void)
 
  /* if(xTransmitterdTaskHandle)
       vTaskDelete(xTransmitterdTaskHandle); */
+	
+ /* if(xinet2RDdTaskHandle)
+      vTaskDelete(xinet2RDdTaskHandle); */
 
     esp_periph_set_destroy(set);
 }
