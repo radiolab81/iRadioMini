@@ -57,6 +57,12 @@ oder eine animierten Kassettensimulation zum Einbau eines Displays in alte Kasse
 Zur Zeit werden alle vom ESP-ADF unterstützten Audio-DACs direkt auch im iRadioMini unterstützt. 
 Zusätzlich können die internen DACs des ESP32 und GPIO-Pins zur PDM/PWM-Audioausgabe genutzt werden.
 
+## Aussendung des Internetradioprogramms über DDS/SDR:
+
+
+![tx1](https://github.com/BM45/iRadioMini/pics4www/iRadioMiniTX.jpg)
+
+
 # Installation:
 
 Das iRadioMini benötigt als Grundvoraussetzung eine Installation des Espressif ADF und IDF. Diese Frameworks können von den offziellen Quellen, wie auch aus meinem BM45-github bezogen werden. ( https://github.com/BM45/esp-adf / https://github.com/BM45/esp-idf )
