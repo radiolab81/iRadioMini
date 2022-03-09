@@ -66,9 +66,11 @@ Zur Zeit unterstützte Sendemodule: AD9832, AD9835, AD9850
 
 Diese Funktion wird durch transmitterd (Sendedaemon) realisiert. Nach dem Bau der Firmware mit Sendeunterstützung, kann diese Sendefunktion über eine Datei mit Namen AM.txt im Wurzelverzeichnis der SD-Karte kontrolliert werden. Ist diese Datei auf der SD-Karte vorhanden, so wird die Sendefunktion aktiv. Der Aufbau von AM.txt ist denkbar einfach. In dieser Datei steht als einziger Wert die Sendefrequenz in kHz.
 
-Zusätzlich zu transmitterd gibt es den Daemonen inet2RFd. Dieser erweitert die Sendefunktion des iRadioMini und bildet die Sender in der Senderliste (Playlist.m3u) in einen wählbaren HF-Bereich ab. Die Umschaltung der Sendefrequenz (falls nicht in ZF-Lage gesendet wird) und des zu sendenden Internetradioprogramms erfolgt durch Messung der Lo-Frequenz des zu versorgenden Radios. 
+Zusätzlich zu transmitterd gibt es den Daemonen inet2RFd. Dieser erweitert die Sendefunktion des iRadioMini und bildet die Sender in der Senderliste (Playlist.m3u) in einen wählbaren HF-Bereich (sofern vom Sendemodul unterstützt) ab. Die Umschaltung der Sendefrequenz - falls nicht in ZF-Lage gesendet wird - und des zu sendenden Internetradioprogramms erfolgt durch Messung der Lo-Frequenz des zu versorgenden Radios. 
 
-![tx2](https://github.com/BM45/iRadioMini/blob/master/pics4www/inet2RDd2.jpg.jpg)
+![tx2](https://github.com/BM45/iRadioMini/blob/master/pics4www/inet2RDd2.jpg)
+
+![tx3](https://github.com/BM45/iRadioMini/blob/master/pics4www/inet2RDd.jpg)
 
 # Installation:
 
