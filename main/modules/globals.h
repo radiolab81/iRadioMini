@@ -3,6 +3,7 @@
 
 #include "audio_pipeline.h"
 #include "periph_wifi.h"
+#include "sdcard_list.h"
 
 //#define USE_INTERNAL_AUDIODAC
 
@@ -23,5 +24,9 @@ esp_periph_set_handle_t set;
 // set by AM.txt form SDCARD
 bool TX_ENABLED;
 uint32_t am_tx_freq;
+
+// mediaplayerd globals
+bool MEDIAPLAYER_ENABLED; 
+playlist_operator_handle_t sdcard_list_handle;
 
 #endif

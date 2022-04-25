@@ -140,7 +140,6 @@ void app_main(void)
     configASSERT(xhttpdHandle);
 
     // Daemonbetrieb - Hauptprozess
-  
     while(1)
     {
 

@@ -7,6 +7,7 @@
 #include "audio_event_iface.h"
 #include "audio_common.h"
 #include "audio_mem.h"
+#include "fatfs_stream.h"
 #include "http_stream.h"
 #include "i2s_stream.h"
 #include "esp_decoder.h"
@@ -25,6 +26,8 @@ static audio_event_iface_handle_t evt;
 
 static audio_pipeline_handle_t pipeline;
 static audio_element_handle_t http_stream_reader, i2s_stream_writer, esp_decoder;
+static audio_element_handle_t fatfs_stream_reader;
+char *url = NULL;
 
 static unsigned int volume = 40;
 #define VOLUME_INC_DEC_STEP 3  // volume changes in %
@@ -36,9 +39,18 @@ void create_audioplayer_pipeline(int channel_num) {
     pipeline = audio_pipeline_init(&pipeline_cfg);
     mem_assert(pipeline);
 
-    ESP_LOGI(TAG, "[ 2.1 ] Create http stream to read data");
-    http_stream_cfg_t http_cfg = HTTP_STREAM_CFG_DEFAULT();
-    http_stream_reader = http_stream_init(&http_cfg);
+    if (!MEDIAPLAYER_ENABLED) {
+      ESP_LOGI(TAG, "[ 2.1 ] Create http stream to read data");
+      http_stream_cfg_t http_cfg = HTTP_STREAM_CFG_DEFAULT();
+      http_stream_reader = http_stream_init(&http_cfg);
+    } else {
+      sdcard_list_current(sdcard_list_handle, &url);
+      fatfs_stream_cfg_t fatfs_cfg = FATFS_STREAM_CFG_DEFAULT();
+      fatfs_cfg.type = AUDIO_STREAM_READER;
+      fatfs_stream_reader = fatfs_stream_init(&fatfs_cfg);
+      audio_element_set_uri(fatfs_stream_reader, url);
+    }
+
 
     ESP_LOGI(TAG, "[ 2.2 ] Create i2s stream to write data to codec chip");
     #ifdef USE_INTERNAL_AUDIODAC
@@ -61,19 +73,31 @@ void create_audioplayer_pipeline(int channel_num) {
     esp_decoder_cfg_t decoder_cfg = DEFAULT_ESP_DECODER_CONFIG();
     esp_decoder = esp_decoder_init(&decoder_cfg, auto_decode, 5);
 
-
+    
     ESP_LOGI(TAG, "[ 2.4 ] Register all elements to audio pipeline");
-    audio_pipeline_register(pipeline, http_stream_reader, "http");
+    if (!MEDIAPLAYER_ENABLED) 
+      audio_pipeline_register(pipeline, http_stream_reader, "http");
+    else 
+      audio_pipeline_register(pipeline, fatfs_stream_reader, "file");
+
     audio_pipeline_register(pipeline, esp_decoder,        "esp");
     audio_pipeline_register(pipeline, i2s_stream_writer,  "i2s");
 
-    ESP_LOGI(TAG, "[ 2.5 ] Link it together http_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
-    const char *link_tag[3] = {"http", "esp", "i2s"};
-    audio_pipeline_link(pipeline, &link_tag[0], 3);
-
-    ESP_LOGI(TAG, "[ 2.6 ] Set up uri");
-    // audio_element_set_uri(http_stream_reader, "http://streams.80s80s.de/wave/mp3-192");
-    audio_element_set_uri(http_stream_reader,playlist[channel_num]);
+    if  (!MEDIAPLAYER_ENABLED) {
+      ESP_LOGI(TAG, "[ 2.5 ] Link it together http_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
+      const char *link_tag[3] = {"http", "esp", "i2s"};
+      audio_pipeline_link(pipeline, &link_tag[0], 3);
+    } else {
+      ESP_LOGI(TAG, "[2.5] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
+      const char *link_tag[3] = {"file", "esp", "i2s"};
+      audio_pipeline_link(pipeline, &link_tag[0], 3);
+    }
+   
+    if (!MEDIAPLAYER_ENABLED) {
+      ESP_LOGI(TAG, "[ 2.6 ] Set up uri");
+      // audio_element_set_uri(http_stream_reader, "http://streams.80s80s.de/wave/mp3-192");
+      audio_element_set_uri(http_stream_reader,playlist[channel_num]);
+    }
 
     // Example of using an audio event -- START
     ESP_LOGI(TAG, "[ 2.7 ] Set up event listener");
@@ -101,7 +125,10 @@ void terminate_audioplayer_pipeline() {
     audio_pipeline_terminate(pipeline);
 
     /* Terminate the pipeline before removing the listener */
-    audio_pipeline_unregister(pipeline, http_stream_reader);
+    if (!MEDIAPLAYER_ENABLED) 
+       audio_pipeline_unregister(pipeline, http_stream_reader);
+    else 
+       audio_pipeline_unregister(pipeline, fatfs_stream_reader);
     audio_pipeline_unregister(pipeline, i2s_stream_writer);
     audio_pipeline_unregister(pipeline, esp_decoder);
 
@@ -116,12 +143,42 @@ void terminate_audioplayer_pipeline() {
 
     /* Release all resources */
     audio_pipeline_deinit(pipeline);
-    audio_element_deinit(http_stream_reader);
+    if (!MEDIAPLAYER_ENABLED)
+      audio_element_deinit(http_stream_reader);
+    else
+      audio_element_deinit(fatfs_stream_reader);
     audio_element_deinit(i2s_stream_writer);
     audio_element_deinit(esp_decoder);
 
 }
 
+
+void switchToChannel(int channel) {
+   if (playlist[channel]) {
+     pipeline_ready=false;
+     terminate_audioplayer_pipeline();
+     create_audioplayer_pipeline(channel);
+     pipeline_ready=true;
+   }
+}
+
+void switchToNextFile() {
+     pipeline_ready=false;
+     terminate_audioplayer_pipeline();
+     sdcard_list_next(sdcard_list_handle, 1, &url);
+     create_audioplayer_pipeline(0);
+     pipeline_ready=true;
+
+}
+
+void switchToPrevFile() {
+     pipeline_ready=false;
+     terminate_audioplayer_pipeline();
+     sdcard_list_prev(sdcard_list_handle, 1, &url);
+     create_audioplayer_pipeline(0);
+     pipeline_ready=true;
+
+}
 
 void player(void *pvParameters) {
     esp_log_level_set(TAG, ESP_LOG_INFO);
@@ -171,8 +228,12 @@ void player(void *pvParameters) {
             && msg.cmd == AEL_MSG_CMD_REPORT_STATUS
             && (((int)msg.data == AEL_STATUS_STATE_STOPPED) || ((int)msg.data == AEL_STATUS_STATE_FINISHED))) {
             ESP_LOGW(TAG, "[ * ] Stop event received");
+            if (MEDIAPLAYER_ENABLED) // naechstes Audiofile von SD-Karte
+	      switchToNextFile();
             continue;
         }
+
+
       } // if(pipeline_ready) {
     }
     // Example of using an audio event -- END
@@ -181,15 +242,6 @@ void player(void *pvParameters) {
 
 }
 
-
-void switchToChannel(int channel) {
-   if (playlist[channel]) {
-     pipeline_ready=false;
-     terminate_audioplayer_pipeline();
-     create_audioplayer_pipeline(channel);
-     pipeline_ready=true;
-   }
-}
 
 void playerControlTask( void * pvParameters )
 {
@@ -208,22 +260,30 @@ void playerControlTask( void * pvParameters )
         //ESP_LOGD(TAG, "Message to playerControlTask: %i",rxMsg->ucMessage);
         
         //  Anforderung Kanalumschaltung
-        if (rxMsg->ucMessage==NEXT_PRG) {
-          if (actual_channel<(channels_in_list-1))
-	    actual_channel++;
-          else { 
-	    actual_channel=0;
-	  }	
+        if (rxMsg->ucMessage==NEXT_PRG) { 
+         if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
+            if (actual_channel<(channels_in_list-1))
+	      actual_channel++;
+            else { 
+	      actual_channel=0;
+	    }	
 	    switchToChannel(actual_channel);
+         } else { // fuer Medienplayer
+	    switchToNextFile();   
+         }
         } // if (rxMsg->ucMessage==NEXT_PRG) {
 
 	if (rxMsg->ucMessage==PREV_PRG) {
-          if (actual_channel==0)
-	     actual_channel=(channels_in_list-1);
-          else {
-	    actual_channel--;    
-	  }
+          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
+            if (actual_channel==0)
+	       actual_channel=(channels_in_list-1);
+            else {
+	      actual_channel--;    
+	    }
 	    switchToChannel(actual_channel);
+          } else { // fuer Medienplayer
+            switchToPrevFile();
+	  }
         } // if (rxMsg->ucMessage==PREV_PRG) {
 
 	if (rxMsg->ucMessage==STOP) {
@@ -258,9 +318,14 @@ void playerControlTask( void * pvParameters )
 	// Anforderung Kanalinfo -> Antwort über xDisplaydQueue
         if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
             xDisplaydMessage.ucMessage = GET_CHANNEL_INFO;
-	    xDisplaydMessage.iChannelNum = actual_channel;
-	    xDisplaydMessage.ucURI = playlist[actual_channel];
-            
+            if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
+	      xDisplaydMessage.iChannelNum = actual_channel;
+	      xDisplaydMessage.ucURI = playlist[actual_channel];
+            } else { // fuer Medienplayer
+	      xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
+              xDisplaydMessage.ucURI = "SDCARD\0";	
+	    }
+
             audio_element_info_t music_info = {0};
             audio_element_getinfo(esp_decoder, &music_info);
   	    xDisplaydMessage.music_info = music_info;

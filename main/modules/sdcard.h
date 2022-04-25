@@ -14,7 +14,6 @@
 periph_wifi_cfg_t readWifiConfigSDCard();
 
 
-
 /**
  * @brief      Create channel list from playlist.m3u on sdcard. 
  *
@@ -34,5 +33,24 @@ void readPlaylistSDCard();
  */
 esp_err_t readAMTXConfigSDCard();
 
+
+/**
+ * @brief      Scan sdcard for audiofiles and (if found) start playback. 
+ *
+ * @param      void
+ *
+ * @return     void
+ */
+void start_mediaplayer_service();
+
+
+/**
+ * @brief      Stop audiofile playback -> activate internetradio mode. 
+ *
+ * @param      void
+ *
+ * @return     void
+ */
+void stop_mediaplayer_service();
 
 #endif
