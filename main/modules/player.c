@@ -44,6 +44,7 @@ void create_audioplayer_pipeline(int channel_num) {
       http_stream_cfg_t http_cfg = HTTP_STREAM_CFG_DEFAULT();
       http_stream_reader = http_stream_init(&http_cfg);
     } else {
+      ESP_LOGI(TAG, "[ 2.1 ] Create fatfs stream to read data from sd");
       sdcard_list_current(sdcard_list_handle, &url);
       fatfs_stream_cfg_t fatfs_cfg = FATFS_STREAM_CFG_DEFAULT();
       fatfs_cfg.type = AUDIO_STREAM_READER;
