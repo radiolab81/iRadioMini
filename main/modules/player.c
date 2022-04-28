@@ -155,30 +155,34 @@ void terminate_audioplayer_pipeline() {
 
 
 void switchToChannel(int channel) {
-   if (playlist[channel]) {
-     pipeline_ready=false;
-     terminate_audioplayer_pipeline();
-     create_audioplayer_pipeline(channel);
-     pipeline_ready=true;
-   }
+   if (pipeline_ready) {
+     if (playlist[channel]) {
+       pipeline_ready=false;
+       terminate_audioplayer_pipeline();
+       create_audioplayer_pipeline(channel);
+       pipeline_ready=true;
+     }
+   }	   
 }
 
 void switchToNextFile() {
+   if (pipeline_ready) {
      pipeline_ready=false;
      terminate_audioplayer_pipeline();
      sdcard_list_next(sdcard_list_handle, 1, &url);
      create_audioplayer_pipeline(0);
-     pipeline_ready=true;
-
+     pipeline_ready=true;      
+   }
 }
 
 void switchToPrevFile() {
+   if (pipeline_ready) {
      pipeline_ready=false;
      terminate_audioplayer_pipeline();
      sdcard_list_prev(sdcard_list_handle, 1, &url);
      create_audioplayer_pipeline(0);
      pipeline_ready=true;
-
+   }
 }
 
 void player(void *pvParameters) {
