@@ -77,7 +77,7 @@ Zusätzlich zu transmitterd gibt es den Daemonen inet2RFd. Dieser erweitert die 
 
 ![mediaplayer](https://github.com/BM45/iRadioMini/blob/master/pics4www/mediaplayer.jpg)
 
-Das iRadioMini kann Mediendateien von einer SD-Karte wiedergeben. Unterstützt werden dabei die Dateiformate, die auch im Internetradiobetrieb durch den ESPDekoder unterstützt werden. Das iRadioMini durchsucht dabei automatisch den Datenträger nach Mediendateien. Der Mediaplayer kann dabei jederzeit (idealerweise durch einen gpiod gesteuert) mittels Aufruf der start_mediaplayer_service() Funktion gestartet werden. Die Internetradiowiedergabe wird dabei bis zum Aufruf von stop_mediaplayer_service() angehalten. 
+Das iRadioMini kann Mediendateien von einer SD-Karte wiedergeben. Unterstützt werden dabei die Dateiformate, die auch im Internetradiobetrieb durch den ESPDekoder unterstützt werden. Das iRadioMini durchsucht dabei automatisch den Datenträger nach Mediendateien. Der Mediaplayer kann dabei jederzeit (idealerweise durch einen gpiod gesteuert) mittels Aufruf der start_mediaplayer_service()/MSG "ENABLE_MEDIAPLAYER" Funktion gestartet werden. Die Internetradiowiedergabe wird dabei bis zum Aufruf von stop_mediaplayer_service()/MSG ENABLE_INTERNETRADIO angehalten. 
 
 # Installation:
 
