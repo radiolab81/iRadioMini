@@ -16,6 +16,7 @@
 #include "esp_audio.h"
 #include "globals.h"
 
+#include "sdcard.h"
 #include "messages.h" 
 
 static const char *TAG = "PLAYER";
@@ -338,6 +339,46 @@ void playerControlTask( void * pvParameters )
             txDisplaydMsg = &xDisplaydMessage; 
 	    xQueueSend( xDisplaydQueue, ( void * ) &txDisplaydMsg, ( TickType_t ) 0 );
          } // if (rxMsg->ucMessage==GET_CHANNEL_NUM) {
+
+	
+        if (rxMsg->ucMessage==ENABLE_INTERNETRADIO) {
+          stop_mediaplayer_service();
+	  if (pipeline_ready) {
+            if (playlist[0]) {
+              pipeline_ready=false;
+              terminate_audioplayer_pipeline();
+              MEDIAPLAYER_ENABLED = false;
+              create_audioplayer_pipeline(0);
+              pipeline_ready=true;
+            }
+	  } 
+          else {
+            if (playlist[0]) {
+              MEDIAPLAYER_ENABLED = false;
+              create_audioplayer_pipeline(0);
+              pipeline_ready=true;
+	    }
+          } // else
+         }
+
+        if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
+          if (start_mediaplayer_service()==ESP_OK) {
+	    if (pipeline_ready) {
+              pipeline_ready=false;
+              terminate_audioplayer_pipeline();
+	      MEDIAPLAYER_ENABLED = true;
+              sdcard_list_next(sdcard_list_handle, 1, &url);
+              create_audioplayer_pipeline(0);
+              pipeline_ready=true;      
+	    } 
+            else {
+               MEDIAPLAYER_ENABLED = true;
+               sdcard_list_next(sdcard_list_handle, 1, &url);
+               create_audioplayer_pipeline(0);
+               pipeline_ready=true; 
+            } // else
+          } //  if (start_mediaplayer_service()==ESP_OK)
+        } // if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
 
      }
 

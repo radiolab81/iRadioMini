@@ -39,9 +39,9 @@ esp_err_t readAMTXConfigSDCard();
  *
  * @param      void
  *
- * @return     void
+ * @return     esp_err_t
  */
-void start_mediaplayer_service();
+esp_err_t start_mediaplayer_service();
 
 
 /**
@@ -49,8 +49,8 @@ void start_mediaplayer_service();
  *
  * @param      void
  *
- * @return     void
+ * @return     esp_err_t
  */
-void stop_mediaplayer_service();
+esp_err_t stop_mediaplayer_service();
 
 #endif

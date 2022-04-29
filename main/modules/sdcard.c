@@ -134,13 +134,14 @@ void sdcard_url_save_cb(void *user_data, char *url)
     }
 }
 
-void stop_mediaplayer_service() {
-    MEDIAPLAYER_ENABLED = false;
+esp_err_t stop_mediaplayer_service() {
+    //MEDIAPLAYER_ENABLED = false;
     ESP_LOGI(TAG, "Release sdcard playlist");
     sdcard_list_destroy(sdcard_list_handle);
+    return ESP_OK;
 } 
 
-void start_mediaplayer_service() {
+esp_err_t start_mediaplayer_service() {
     ESP_LOGI(TAG, "Set up a sdcard playlist and scan sdcard music save to it");
     sdcard_list_create(&sdcard_list_handle);
     sdcard_scan(sdcard_url_save_cb, "/sdcard", 0, (const char *[]) {"mp3", "aac"}, 2, sdcard_list_handle);
@@ -148,10 +149,12 @@ void start_mediaplayer_service() {
    
     if (sdcard_list_get_url_num(sdcard_list_handle)>0) {
       ESP_LOGI(TAG, "mediaplayer service active");
-      MEDIAPLAYER_ENABLED = true;
+       //MEDIAPLAYER_ENABLED = true;
+       return ESP_OK;
     } else {
       ESP_LOGI(TAG, "no files found - mediaplayer service inactive");
       stop_mediaplayer_service();
+      return ESP_FAIL;
     } 
  
 }

@@ -1,10 +1,12 @@
 #include "gpiod.h"
 
 #include "board.h"
+#include "globals.h"
 
 #include "messages.h"
 #include "esp_log.h"
 
+#define KEY_MEDIAPLAYER  GPIO_NUM_23
 #define KEY_PRG_NEXT  GPIO_NUM_5
 #define KEY_PRG_PREV  GPIO_NUM_18
 
@@ -25,7 +27,7 @@ void gpiod(void *pvParameters) {
   gpio_config_t io_conf;
   io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
   io_conf.mode = GPIO_MODE_INPUT;
-  io_conf.pin_bit_mask = ( BIT(KEY_PRG_NEXT) | BIT(KEY_PRG_PREV) );
+  io_conf.pin_bit_mask = ( BIT(KEY_PRG_NEXT) | BIT(KEY_PRG_PREV) | BIT(KEY_MEDIAPLAYER) );
   io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
   io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
   gpio_config(&io_conf);
@@ -34,7 +36,19 @@ void gpiod(void *pvParameters) {
 
   // Daemonbetrieb
   while (1) {
-    if (!gpio_get_level(KEY_PRG_NEXT)) // If pin is switched on
+    if (!gpio_get_level(KEY_MEDIAPLAYER)) {
+       ESP_LOGI(TAG, "toggle playermodi (internet/mediaplayer)");
+
+       if (MEDIAPLAYER_ENABLED) 
+	    xMessage.ucMessage = ENABLE_INTERNETRADIO;
+       else 
+            xMessage.ucMessage = ENABLE_MEDIAPLAYER;
+
+       pxMessage = &xMessage; 
+       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+    } 
+
+    if (!gpio_get_level(KEY_PRG_NEXT))
 	 {
 	    ESP_LOGI(TAG, "prog+");
 	    xMessage.ucMessage = NEXT_PRG;
@@ -42,7 +56,7 @@ void gpiod(void *pvParameters) {
 	    xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
          }
 
-     if (!gpio_get_level(KEY_PRG_PREV)) // If pin is switched on
+     if (!gpio_get_level(KEY_PRG_PREV))
 	{
 	    ESP_LOGI(TAG, "prog-");
 	    xMessage.ucMessage = PREV_PRG;

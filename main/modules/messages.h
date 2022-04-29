@@ -13,6 +13,9 @@
 
 #define GET_CHANNEL_INFO 	30
 
+#define ENABLE_MEDIAPLAYER 40
+#define ENABLE_INTERNETRADIO 41
+
 struct AMessage
 {
     char ucMessage;
