@@ -13,20 +13,20 @@
 #endif
 
 #define MAX_CHANNELS_IN_LIST 100
-char* playlist[MAX_CHANNELS_IN_LIST];
-int   channels_in_list;
+extern char* playlist[MAX_CHANNELS_IN_LIST];
+extern int   channels_in_list;
 
 
 // set by wifi.txt and playlist.m3u from SDCARD
-periph_wifi_cfg_t wifi_cfg;
-esp_periph_set_handle_t set;
+extern periph_wifi_cfg_t wifi_cfg;
+extern esp_periph_set_handle_t set;
 
 // set by AM.txt form SDCARD
-bool TX_ENABLED;
-uint32_t am_tx_freq;
+extern bool TX_ENABLED;
+extern uint32_t am_tx_freq;
 
 // mediaplayerd globals
-bool MEDIAPLAYER_ENABLED; 
-playlist_operator_handle_t sdcard_list_handle;
+extern bool MEDIAPLAYER_ENABLED; 
+extern playlist_operator_handle_t sdcard_list_handle;
 
 #endif
