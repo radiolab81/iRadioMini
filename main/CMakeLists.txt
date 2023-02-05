@@ -1,4 +1,6 @@
 set(COMPONENT_SRCS "iRadioMini.c" 
+	           "./modules/globals.c"
+		   
 		   "./modules/utils.c"
 		   "./modules/player.c"
 		   "./modules/gpiod.c"
