@@ -62,7 +62,7 @@ Zusätzlich können die internen DACs des ESP32 und GPIO-Pins zur PDM/PWM-Audioa
 ![tx1](https://github.com/BM45/iRadioMini/blob/master/pics4www/iRadioMiniTX1.jpg)
 
 Das iRadioMini kann als Modulationsquelle für alte Radios dienen und einen Internetradiosender über HF erneut ausspielen.  
-Zur Zeit unterstützte Sendemodule: AD9832, AD9835, AD9850
+Zur Zeit unterstützte Sendemodule: AD9832, AD9835, AD9850, ESP32 interne Trägergenerierung
 
 Diese Funktion wird durch transmitterd (Sendedaemon) realisiert. Nach dem Bau der Firmware mit Sendeunterstützung, kann diese Sendefunktion über eine Datei mit Namen AM.txt im Wurzelverzeichnis der SD-Karte kontrolliert werden. Ist diese Datei auf der SD-Karte vorhanden, so wird die Sendefunktion aktiv. Der Aufbau von AM.txt ist denkbar einfach. In dieser Datei steht als einziger Wert die Sendefrequenz in kHz.
 
