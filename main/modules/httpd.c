@@ -123,14 +123,13 @@ esp_err_t get_handler(httpd_req_t *req)
 <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button button1\"/> \
 </form>");
 
+strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 80%\" size=\"25\" > ");
 
 if (!MEDIAPLAYER_ENABLED) {
     // build station list
-	strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 80%\" size=\"25\" > ");
-
+	
     char itoa_buf[3];
-    
-	for (int i=0;i<channels_in_list;i++) {
+  	for (int i=0;i<channels_in_list;i++) {
   	   strcat(HTML,"<option value=\"");
   	   itoa(i, itoa_buf, 10); 
   	   strcat(HTML,itoa_buf);
@@ -139,22 +138,23 @@ if (!MEDIAPLAYER_ENABLED) {
   	   strcat(HTML," </option> ");
 	}
 	strcat(HTML,"</select></form>");
+	
 } else {
 	// build SDcard mediafile list
+	char itoa_buf[3];
+        char *url_buf = NULL;
+	for (int i=0;i<sdcard_list_get_url_num(sdcard_list_handle);i++) {
+           strcat(HTML,"<option value=\"");
+  	   itoa(i, itoa_buf, 10); 
+  	   strcat(HTML,itoa_buf);
+  	   strcat(HTML,"\"> ");
+  	   sdcard_list_choose(sdcard_list_handle, i, &url_buf);
+  	   strcat(HTML,url_buf);
+  	   strcat(HTML," </option> ");	
+	}
 	
-}
+} // if (!MEDIAPLAYER_ENABLED) {
 
-/*
-strcat(HTML,"<br>  \
-<select name=\"Cars\" size=\"25\"> \
-    <option value=\"Merceders:&\"> Merceders </option> \
-    <option value=\"BMW\"> BMW </option> \
-    <option value=\"Jaguar\"> Jaguar </option> \
-    <option value=\"Lamborghini\"> Lamborghini </option> \
-    <option value=\"Ferrari\"> Ferrari </option> \
-    <option value=\"Ford\"> Ford </option>  \
-</select>");
-*/
 
 strcat(HTML,"</center> \
 </body> \
