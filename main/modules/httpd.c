@@ -1,3 +1,4 @@
+#include "globals.h"
 #include "httpd.h"
 #include <esp_wifi.h>
 #include <esp_event.h>
@@ -10,10 +11,11 @@
 
 static const char *TAG = "HTTPD";
 
+static char* HTML;
+
 /* Our URI handler function to be called during GET / request */
 esp_err_t get_handler(httpd_req_t *req)
-{
-
+{   
     char*  buf;
     size_t buf_len;
     char variable[32];
@@ -32,55 +34,65 @@ esp_err_t get_handler(httpd_req_t *req)
             if (!strcmp(variable,"Next")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = NEXT_PRG;
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       	   pxMessage = &xMessage; 
+	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Prev")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = PREV_PRG;
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	           pxMessage = &xMessage; 
+	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Stop")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = STOP;
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	           pxMessage = &xMessage; 
+	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Play")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = PLAY;
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	           pxMessage = &xMessage; 
+	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Vol%2B")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = VOLUP;
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	           pxMessage = &xMessage; 
+	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Vol-")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = VOLDOWN;
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	           pxMessage = &xMessage; 
+	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
         } // if (httpd_query_key_value(buf, "command", variable, sizeof(variable)) == ESP_OK) {
+        
+       if (httpd_query_key_value(buf, "gotoStation", variable, sizeof(variable)) == ESP_OK) {
+           ESP_LOGI(TAG, "HTTP GET (goto) Command %s",variable);
+           struct AMessage *pxMessage;
+           xMessage.ucMessage = GOTO_PRG;
+           xMessage.ucNumMessage = atoi(variable);
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+            
+       }
+
       } //  if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
  
      free(buf);
     } // if (buf_len > 1) {
 
 
-
-
     /* Send a simple response */
-   char* HTML = "<!DOCTYPE html>\
+   HTML[0]='\0'; // empty HTML response
+   strcat(HTML,"<!DOCTYPE html>\
 <html> \
 <head> \
 <style> \
@@ -109,10 +121,45 @@ esp_err_t get_handler(httpd_req_t *req)
 <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Play\"class=\"button button1\"/> \
 <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol-\"class=\"button button1\"/> \
 <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button button1\"/> \
-</form> </center> \
+</form>");
+
+
+if (!MEDIAPLAYER_ENABLED) {
+    // build station list
+	strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 80%\" size=\"25\" > ");
+
+    char itoa_buf[3];
+    
+	for (int i=0;i<channels_in_list;i++) {
+  	   strcat(HTML,"<option value=\"");
+  	   itoa(i, itoa_buf, 10); 
+  	   strcat(HTML,itoa_buf);
+  	   strcat(HTML,"\"> ");
+  	   strcat(HTML,playlist[i]);
+  	   strcat(HTML," </option> ");
+	}
+	strcat(HTML,"</select></form>");
+} else {
+	// build SDcard mediafile list
+	
+}
+
+/*
+strcat(HTML,"<br>  \
+<select name=\"Cars\" size=\"25\"> \
+    <option value=\"Merceders:&\"> Merceders </option> \
+    <option value=\"BMW\"> BMW </option> \
+    <option value=\"Jaguar\"> Jaguar </option> \
+    <option value=\"Lamborghini\"> Lamborghini </option> \
+    <option value=\"Ferrari\"> Ferrari </option> \
+    <option value=\"Ford\"> Ford </option>  \
+</select>");
+*/
+
+strcat(HTML,"</center> \
 </body> \
 </html> \
-";
+");
 
 
     httpd_resp_send(req, HTML, strlen(HTML));
@@ -171,6 +218,7 @@ httpd_uri_t uri_post = {
 /* Function for starting the webserver */
 httpd_handle_t start_webserver(void)
 {
+    HTML = malloc(8000*sizeof(char));
     /* Generate default configuration */
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
@@ -193,6 +241,7 @@ void stop_webserver(httpd_handle_t server)
     if (server) {
         /* Stop the httpd server */
         httpd_stop(server);
+        free(HTML);
     }
 }
 
