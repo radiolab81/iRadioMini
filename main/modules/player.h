@@ -30,6 +30,15 @@ void playerControlTask(void *pvParameters);
  */
 void switchToChannel(int channel);
 
+
+/**
+ * @brief      switch to file in sdcard playlist
+ * @param      1: num of file in playlist 
+ *
+ * @return     none
+ */
+void switchToFile(int url_id);
+
 /**
  * @brief      set-up the audio pipeline (HTTP->ESP DECODER->I2S DAC) for playing a channel from playlist
  * @param      1: num of ch in playlist 
