@@ -7,6 +7,7 @@
 #define PREV_PRG 11
 #define STOP 	 12
 #define PLAY     13
+#define GOTO_PRG 14
 
 #define VOLUP 	 20
 #define VOLDOWN  21
@@ -20,6 +21,7 @@ struct AMessage
 {
     char ucMessage;
     //char ucData[255];
+    int  ucNumMessage;
 
 } xMessage;
 
