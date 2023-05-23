@@ -149,6 +149,7 @@ void terminate_audioplayer_pipeline() {
       audio_element_deinit(http_stream_reader);
     else
       audio_element_deinit(fatfs_stream_reader);
+      
     audio_element_deinit(i2s_stream_writer);
     audio_element_deinit(esp_decoder);
 
@@ -184,7 +185,18 @@ void switchToPrevFile() {
      create_audioplayer_pipeline(0);
      pipeline_ready=true;
    }
+}   
+
+void switchToFile(int url_id) {
+   if (pipeline_ready) {
+     pipeline_ready=false;
+     terminate_audioplayer_pipeline();
+     sdcard_list_choose(sdcard_list_handle, url_id, &url);
+     create_audioplayer_pipeline(0);
+     pipeline_ready=true;
+   } 
 }
+
 
 void player(void *pvParameters) {
     esp_log_level_set(TAG, ESP_LOG_INFO);
@@ -235,7 +247,7 @@ void player(void *pvParameters) {
             && (((int)msg.data == AEL_STATUS_STATE_STOPPED) || ((int)msg.data == AEL_STATUS_STATE_FINISHED))) {
             ESP_LOGW(TAG, "[ * ] Stop event received");
             if (MEDIAPLAYER_ENABLED) // naechstes Audiofile von SD-Karte
-	      switchToNextFile();
+	          switchToNextFile();
             continue;
         }
 
@@ -269,10 +281,10 @@ void playerControlTask( void * pvParameters )
        if (rxMsg->ucMessage==GOTO_PRG) { 
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
            actual_channel=rxMsg->ucNumMessage;
-	   switchToChannel(actual_channel);
+	       switchToChannel(actual_channel);
          } else { // fuer Medienplayer
-	    switchToNextFile();   
-         }
+	        switchToFile(rxMsg->ucNumMessage);   
+	      }
        } // if (rxMsg->ucMessage==GOTO_PRG) {
         
        //  Anforderung Kanalumschaltung
@@ -313,12 +325,12 @@ void playerControlTask( void * pvParameters )
       } // if (rxMsg->ucMessage==PLAY) {
 
       if (rxMsg->ucMessage==VOLUP) {
-	if (pipeline_ready) {
+  	    if (pipeline_ready) {
           if (volume<100-VOLUME_INC_DEC_STEP) {
             volume+=VOLUME_INC_DEC_STEP;
             audio_hal_set_volume(board_handle->audio_hal,volume);
           }
-	}
+	    }
       } // if (rxMsg->ucMessage==VOLUP) {
 
       if (rxMsg->ucMessage==VOLDOWN) {
@@ -338,9 +350,9 @@ void playerControlTask( void * pvParameters )
 	      xDisplaydMessage.iChannelNum = actual_channel;
 	      xDisplaydMessage.ucURI = playlist[actual_channel];
         } else { // fuer Medienplayer
-	      xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
-              xDisplaydMessage.ucURI = "SDCARD\0";	
-	  }
+            xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
+            xDisplaydMessage.ucURI = "SDCARD\0";	
+	}
 
         audio_element_info_t music_info = {0};
         audio_element_getinfo(esp_decoder, &music_info);
@@ -367,7 +379,7 @@ void playerControlTask( void * pvParameters )
              MEDIAPLAYER_ENABLED = false;
              create_audioplayer_pipeline(0);
              pipeline_ready=true;
-	   }
+	       }
          } // else
       }
 
@@ -380,15 +392,15 @@ void playerControlTask( void * pvParameters )
             sdcard_list_next(sdcard_list_handle, 1, &url);
             create_audioplayer_pipeline(0);
             pipeline_ready=true;      
-	  } 
+	      } 
            else {
             MEDIAPLAYER_ENABLED = true;
             sdcard_list_next(sdcard_list_handle, 1, &url);
             create_audioplayer_pipeline(0);
             pipeline_ready=true; 
            } // else
-         } //  if (start_mediaplayer_service()==ESP_OK)
-       } // if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
+        } //  if (start_mediaplayer_service()==ESP_OK)
+      } // if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
 
      }
 
