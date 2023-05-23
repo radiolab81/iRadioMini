@@ -264,121 +264,131 @@ void playerControlTask( void * pvParameters )
       if( xQueueReceive( xPlayerQueue, &( rxMsg ), ( TickType_t ) 10 )  )
       {
         //ESP_LOGD(TAG, "Message to playerControlTask: %i",rxMsg->ucMessage);
-        
-        //  Anforderung Kanalumschaltung
-        if (rxMsg->ucMessage==NEXT_PRG) { 
+
+       //  Anforderung Kanalumschaltung direkt per GOTO
+       if (rxMsg->ucMessage==GOTO_PRG) { 
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-            if (actual_channel<(channels_in_list-1))
-	      actual_channel++;
-            else { 
-	      actual_channel=0;
-	    }	
-	    switchToChannel(actual_channel);
+           actual_channel=rxMsg->ucNumMessage;
+	   switchToChannel(actual_channel);
          } else { // fuer Medienplayer
 	    switchToNextFile();   
          }
-        } // if (rxMsg->ucMessage==NEXT_PRG) {
+       } // if (rxMsg->ucMessage==GOTO_PRG) {
+        
+       //  Anforderung Kanalumschaltung
+       if (rxMsg->ucMessage==NEXT_PRG) { 
+         if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
+           if (actual_channel<(channels_in_list-1))
+	          actual_channel++;
+            else { 
+	          actual_channel=0;
+	        }	
+	        switchToChannel(actual_channel);
+         } else { // fuer Medienplayer
+	        switchToNextFile();   
+           }
+       } // if (rxMsg->ucMessage==NEXT_PRG) {
 
-	if (rxMsg->ucMessage==PREV_PRG) {
-          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-            if (actual_channel==0)
-	       actual_channel=(channels_in_list-1);
-            else {
-	      actual_channel--;    
-	    }
-	    switchToChannel(actual_channel);
-          } else { // fuer Medienplayer
+       if (rxMsg->ucMessage==PREV_PRG) {
+         if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
+           if (actual_channel==0)
+	         actual_channel=(channels_in_list-1);
+           else {
+	         actual_channel--;    
+	       }
+	       switchToChannel(actual_channel);
+         } else { // fuer Medienplayer
             switchToPrevFile();
-	  }
-        } // if (rxMsg->ucMessage==PREV_PRG) {
+           }
+       } // if (rxMsg->ucMessage==PREV_PRG) {
 
-	if (rxMsg->ucMessage==STOP) {
-          if (pipeline_ready)
-            audio_pipeline_pause(pipeline);
-        } // if (rxMsg->ucMessage==STOP) {
+      if (rxMsg->ucMessage==STOP) {
+        if (pipeline_ready)
+          audio_pipeline_pause(pipeline);
+      } // if (rxMsg->ucMessage==STOP) {
 
-	if (rxMsg->ucMessage==PLAY) {
-	  if (pipeline_ready)
-            audio_pipeline_resume(pipeline);
-        } // if (rxMsg->ucMessage==PLAY) {
+      if (rxMsg->ucMessage==PLAY) {
+        if (pipeline_ready)
+          audio_pipeline_resume(pipeline);
+      } // if (rxMsg->ucMessage==PLAY) {
 
-        if (rxMsg->ucMessage==VOLUP) {
-	  if (pipeline_ready) {
-            if (volume<100-VOLUME_INC_DEC_STEP) {
-              volume+=VOLUME_INC_DEC_STEP;
-              audio_hal_set_volume(board_handle->audio_hal,volume);
-            }
-	  }
-        } // if (rxMsg->ucMessage==VOLUP) {
+      if (rxMsg->ucMessage==VOLUP) {
+	if (pipeline_ready) {
+          if (volume<100-VOLUME_INC_DEC_STEP) {
+            volume+=VOLUME_INC_DEC_STEP;
+            audio_hal_set_volume(board_handle->audio_hal,volume);
+          }
+	}
+      } // if (rxMsg->ucMessage==VOLUP) {
 
-        if (rxMsg->ucMessage==VOLDOWN) {
-	  if (pipeline_ready) {
-            if (volume>0+VOLUME_INC_DEC_STEP) {
-              volume-=VOLUME_INC_DEC_STEP;
-              audio_hal_set_volume(board_handle->audio_hal,volume);
-            }
-	  }
-        } // if (rxMsg->ucMessage==VOLDOWN) {
+      if (rxMsg->ucMessage==VOLDOWN) {
+        if (pipeline_ready) {
+          if (volume>0+VOLUME_INC_DEC_STEP) {
+            volume-=VOLUME_INC_DEC_STEP;
+            audio_hal_set_volume(board_handle->audio_hal,volume);
+          }
+        }
+      } // if (rxMsg->ucMessage==VOLDOWN) {
 
 
-	// Anforderung Kanalinfo -> Antwort über xDisplaydQueue
-        if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
-            xDisplaydMessage.ucMessage = GET_CHANNEL_INFO;
-            if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
+      // Anforderung Kanalinfo -> Antwort über xDisplaydQueue
+      if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
+        xDisplaydMessage.ucMessage = GET_CHANNEL_INFO;
+        if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
 	      xDisplaydMessage.iChannelNum = actual_channel;
 	      xDisplaydMessage.ucURI = playlist[actual_channel];
-            } else { // fuer Medienplayer
+        } else { // fuer Medienplayer
 	      xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
               xDisplaydMessage.ucURI = "SDCARD\0";	
-	    }
+	  }
 
-            audio_element_info_t music_info = {0};
-            audio_element_getinfo(esp_decoder, &music_info);
-  	    xDisplaydMessage.music_info = music_info;
+        audio_element_info_t music_info = {0};
+        audio_element_getinfo(esp_decoder, &music_info);
+        xDisplaydMessage.music_info = music_info;
 
-            txDisplaydMsg = &xDisplaydMessage; 
-	    xQueueSend( xDisplaydQueue, ( void * ) &txDisplaydMsg, ( TickType_t ) 0 );
-         } // if (rxMsg->ucMessage==GET_CHANNEL_NUM) {
+        txDisplaydMsg = &xDisplaydMessage; 
+        xQueueSend( xDisplaydQueue, ( void * ) &txDisplaydMsg, ( TickType_t ) 0 );
+      } // if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
 
 	
-        if (rxMsg->ucMessage==ENABLE_INTERNETRADIO) {
-          stop_mediaplayer_service();
-	  if (pipeline_ready) {
-            if (playlist[0]) {
-              pipeline_ready=false;
-              terminate_audioplayer_pipeline();
-              MEDIAPLAYER_ENABLED = false;
-              create_audioplayer_pipeline(0);
-              pipeline_ready=true;
-            }
-	  } 
-          else {
-            if (playlist[0]) {
-              MEDIAPLAYER_ENABLED = false;
-              create_audioplayer_pipeline(0);
-              pipeline_ready=true;
-	    }
-          } // else
-         }
+      if (rxMsg->ucMessage==ENABLE_INTERNETRADIO) {
+        stop_mediaplayer_service();
+	if (pipeline_ready) {
+          if (playlist[0]) {
+            pipeline_ready=false;
+            terminate_audioplayer_pipeline();
+            MEDIAPLAYER_ENABLED = false;
+            create_audioplayer_pipeline(0);
+            pipeline_ready=true;
+          }
+	} 
+         else {
+           if (playlist[0]) {
+             MEDIAPLAYER_ENABLED = false;
+             create_audioplayer_pipeline(0);
+             pipeline_ready=true;
+	   }
+         } // else
+      }
 
-        if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
-          if (start_mediaplayer_service()==ESP_OK) {
-	    if (pipeline_ready) {
-              pipeline_ready=false;
-              terminate_audioplayer_pipeline();
-	      MEDIAPLAYER_ENABLED = true;
-              sdcard_list_next(sdcard_list_handle, 1, &url);
-              create_audioplayer_pipeline(0);
-              pipeline_ready=true;      
-	    } 
-            else {
-               MEDIAPLAYER_ENABLED = true;
-               sdcard_list_next(sdcard_list_handle, 1, &url);
-               create_audioplayer_pipeline(0);
-               pipeline_ready=true; 
-            } // else
-          } //  if (start_mediaplayer_service()==ESP_OK)
-        } // if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
+      if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
+        if (start_mediaplayer_service()==ESP_OK) {
+          if (pipeline_ready) {
+            pipeline_ready=false;
+            terminate_audioplayer_pipeline();
+	    MEDIAPLAYER_ENABLED = true;
+            sdcard_list_next(sdcard_list_handle, 1, &url);
+            create_audioplayer_pipeline(0);
+            pipeline_ready=true;      
+	  } 
+           else {
+            MEDIAPLAYER_ENABLED = true;
+            sdcard_list_next(sdcard_list_handle, 1, &url);
+            create_audioplayer_pipeline(0);
+            pipeline_ready=true; 
+           } // else
+         } //  if (start_mediaplayer_service()==ESP_OK)
+       } // if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
 
      }
 
@@ -386,6 +396,3 @@ void playerControlTask( void * pvParameters )
    }
   }
 }
-
-
-
