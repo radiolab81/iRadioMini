@@ -34,43 +34,43 @@ esp_err_t get_handler(httpd_req_t *req)
             if (!strcmp(variable,"Next")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = NEXT_PRG;
-	       	   pxMessage = &xMessage; 
-	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Prev")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = PREV_PRG;
-	           pxMessage = &xMessage; 
-	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Stop")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = STOP;
-	           pxMessage = &xMessage; 
-	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Play")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = PLAY;
-	           pxMessage = &xMessage; 
-	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Vol%2B")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = VOLUP;
-	           pxMessage = &xMessage; 
-	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
 
             if (!strcmp(variable,"Vol-")) {
                struct AMessage *pxMessage;
                xMessage.ucMessage = VOLDOWN;
-	           pxMessage = &xMessage; 
-	           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	       pxMessage = &xMessage; 
+	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
         } // if (httpd_query_key_value(buf, "command", variable, sizeof(variable)) == ESP_OK) {
         
@@ -79,8 +79,8 @@ esp_err_t get_handler(httpd_req_t *req)
            struct AMessage *pxMessage;
            xMessage.ucMessage = GOTO_PRG;
            xMessage.ucNumMessage = atoi(variable);
-	       pxMessage = &xMessage; 
-	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+	   pxMessage = &xMessage; 
+	   xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             
        }
 
@@ -152,6 +152,7 @@ if (!MEDIAPLAYER_ENABLED) {
   	   strcat(HTML,url_buf);
   	   strcat(HTML," </option> ");	
 	}
+	strcat(HTML,"</select></form>");
 	
 } // if (!MEDIAPLAYER_ENABLED) {
 
