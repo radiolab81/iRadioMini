@@ -56,7 +56,8 @@ void create_audioplayer_pipeline(int channel_num) {
 
     ESP_LOGI(TAG, "[ 2.2 ] Create i2s stream to write data to codec chip");
     #ifdef USE_INTERNAL_AUDIODAC
-      i2s_stream_cfg_t i2s_cfg = I2S_STREAM_INTERNAL_DAC_CFG_DEFAULT();
+      i2s_stream_cfg_t i2s_cfg = I2S_STREAM_TX_PDM_CFG_DEFAULT();  // PDM modulation for better audio quality, need output filter !!!
+      // i2s_stream_cfg_t i2s_cfg = I2S_STREAM_INTERNAL_DAC_CFG_DEFAULT(); // only 8 Bit low quality audio
     #else
       i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
     #endif 	
