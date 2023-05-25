@@ -226,11 +226,13 @@ void player(void *pvParameters) {
     esp_periph_start(set, wifi_handle);
     periph_wifi_wait_for_connected(wifi_handle, portMAX_DELAY);
     
-    // default gain settings for Equalizer
+    // get gain settings for Equalizer from SD or default (-13dB)
     // https://espressif-docs.readthedocs-hosted.com/projects/esp-adf/en/latest/api-reference/audio-processing/equalizer.html#api-reference
-    for (int i=0; i<20; i++)
-      equalizer_gain[i] = -13; // -13dB
-
+    if (readEQ_SDCard()==ESP_FAIL) {
+      for (int i=0; i<20; i++)
+        equalizer_gain[i] = -13; // -13dB
+    }
+	
     create_audioplayer_pipeline(0);
 
     // Deamonbetrieb
