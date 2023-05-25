@@ -19,6 +19,7 @@ esp_err_t get_handler(httpd_req_t *req)
     char*  buf;
     size_t buf_len;
     char variable[32];
+    char itoa_buf[5];
   
     buf_len = httpd_req_get_url_query_len(req) + 1;
     if (buf_len > 1) {
@@ -84,6 +85,51 @@ esp_err_t get_handler(httpd_req_t *req)
             
        }
 
+       // new Equalizer gain settings
+       if (httpd_query_key_value(buf, "31Hz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[0] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "62Hz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[1] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "125Hz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[2] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "250Hz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[3] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "500Hz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[4] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "1kHz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[5] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "2kHz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[6] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "4kHz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[7] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "8kHz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[8] = atoi(variable);
+       }
+
+       if (httpd_query_key_value(buf, "16kHz", variable, sizeof(variable)) == ESP_OK) {
+          equalizer_gain[9] = atoi(variable);
+          struct AMessage *pxMessage;
+          xMessage.ucMessage = UPDEQU;
+          pxMessage = &xMessage; 
+          xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+       }
+
       } //  if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
  
      free(buf);
@@ -109,6 +155,14 @@ esp_err_t get_handler(httpd_req_t *req)
   cursor: pointer; \
 }  \
 .button1 {width: 200px;} \
+input[type=range][orient=vertical] \
+{ \
+    writing-mode: bt-lr; /* IE */ \
+    -webkit-appearance: slider-vertical; /* Chromium */ \
+    width: 8px; \
+    height: 175px; \
+    padding: 0 5px; \
+} \
 </style> \
 </head> \
 <body style=\"background-color:powderblue;\"> \
@@ -123,12 +177,10 @@ esp_err_t get_handler(httpd_req_t *req)
 <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button button1\"/> \
 </form>");
 
-strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 80%\" size=\"25\" > ");
+strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 70%\" size=\"25\" > ");
 
 if (!MEDIAPLAYER_ENABLED) {
     // build station list
-	
-    char itoa_buf[3];
   	for (int i=0;i<channels_in_list;i++) {
   	   strcat(HTML,"<option value=\"");
   	   itoa(i, itoa_buf, 10); 
@@ -141,7 +193,6 @@ if (!MEDIAPLAYER_ENABLED) {
 	
 } else {
 	// build SDcard mediafile list
-	char itoa_buf[3];
         char *url_buf = NULL;
 	for (int i=0;i<sdcard_list_get_url_num(sdcard_list_handle);i++) {
            strcat(HTML,"<option value=\"");
@@ -157,11 +208,67 @@ if (!MEDIAPLAYER_ENABLED) {
 } // if (!MEDIAPLAYER_ENABLED) {
 
 
+// EQUALIZER
+strcat(HTML, "<br> \
+<form><fieldset  STYLE=\"width: 50%\"><legend>EQUALIZER</legend> \
+  <input type=\"range\"  method=\"get\" id=\"31Hz\" name=\"31Hz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[0], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\" > \
+  <label for=\"31Hz\">31 Hz</label> \
+  <input type=\"range\"  method=\"get\" id=\"62Hz\" name=\"62Hz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[1], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"62Hz\">62 Hz</label> \
+  <input type=\"range\"  method=\"get\" id=\"125Hz\" name=\"125Hz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[2], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"125Hz\">125 Hz</label> \
+  <input type=\"range\"  method=\"get\" id=\"250Hz\" name=\"250Hz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[3], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"250Hz\">250 Hz</label> \
+  <input type=\"range\"  method=\"get\" id=\"500Hz\" name=\"500Hz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[4], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"500Hz\">500 Hz</label> \
+  <input type=\"range\"  method=\"get\" id=\"1kHz\" name=\"1kHz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[5], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"1kHz\">1 kHz</label> \
+  <input type=\"range\"  method=\"get\" id=\"2kHz\" name=\"2kHz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[6], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\" > \
+  <label for=\"2kHz\">2 kHz</label> \
+  <input type=\"range\"  method=\"get\" id=\"4kHz\" name=\"4kHz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[7], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"4kHz\">4 kHz</label> \
+  <input type=\"range\"  method=\"get\" id=\"8kHz\" name=\"8kHz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[8], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"8kHz\">8 kHz</label> \
+  <input type=\"range\"  method=\"get\" id=\"16kHz\" name=\"16kHz\" orient=\"vertical\" \
+         min=\"-30\" max=\"10\" value=\"");
+itoa(equalizer_gain[9], itoa_buf, 10);
+strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
+  <label for=\"16kHz\">16 kHz</label> \
+</fieldset></form>  ");
+
+
+
 strcat(HTML,"</center> \
 </body> \
 </html> \
 ");
-
 
     httpd_resp_send(req, HTML, strlen(HTML));
     return ESP_OK;
