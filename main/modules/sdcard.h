@@ -53,4 +53,23 @@ esp_err_t start_mediaplayer_service();
  */
 esp_err_t stop_mediaplayer_service();
 
+
+/**
+ * @brief      Write EQ-settings to sdcard. 
+ *
+ * @param      void
+ *
+ * @return     ESP_OK, ESP_FAIL
+ */
+esp_err_t saveEQ_SDCard();
+
+/**
+ * @brief      Read EQ-settings from sdcard. 
+ *
+ * @param      void
+ *
+ * @return     ESP_OK, ESP_FAIL
+ */
+esp_err_t readEQ_SDCard();
+
 #endif
