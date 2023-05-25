@@ -8,6 +8,7 @@
 #define STOP 	 12
 #define PLAY     13
 #define GOTO_PRG 14
+#define UPDEQU   15
 
 #define VOLUP 	 20
 #define VOLDOWN  21
