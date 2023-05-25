@@ -15,3 +15,5 @@ uint32_t am_tx_freq;
 bool MEDIAPLAYER_ENABLED; 
 playlist_operator_handle_t sdcard_list_handle;
 
+// Equalizer gain settings
+int equalizer_gain[20];
