@@ -11,6 +11,7 @@
 #include "http_stream.h"
 #include "i2s_stream.h"
 #include "esp_decoder.h"
+#include "equalizer.h"
 
 #include "board.h"
 #include "esp_audio.h"
@@ -26,11 +27,11 @@ static audio_board_handle_t board_handle;
 static audio_event_iface_handle_t evt;
 
 static audio_pipeline_handle_t pipeline;
-static audio_element_handle_t http_stream_reader, i2s_stream_writer, esp_decoder;
+static audio_element_handle_t http_stream_reader, i2s_stream_writer, esp_decoder, equalizer;
 static audio_element_handle_t fatfs_stream_reader;
-char *url = NULL;
+char   *url = NULL;
 
-static unsigned int volume = 40;
+static unsigned int volume = 30;
 #define VOLUME_INC_DEC_STEP 3  // volume changes in %
 
 
@@ -56,8 +57,7 @@ void create_audioplayer_pipeline(int channel_num) {
 
     ESP_LOGI(TAG, "[ 2.2 ] Create i2s stream to write data to codec chip");
     #ifdef USE_INTERNAL_AUDIODAC
-      i2s_stream_cfg_t i2s_cfg = I2S_STREAM_TX_PDM_CFG_DEFAULT();  // PDM modulation for better audio quality, need output filter !!!
-      // i2s_stream_cfg_t i2s_cfg = I2S_STREAM_INTERNAL_DAC_CFG_DEFAULT(); // only 8 Bit low quality audio
+      i2s_stream_cfg_t i2s_cfg = I2S_STREAM_TX_PDM_CFG_DEFAULT();
     #else
       i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
     #endif 	
@@ -76,42 +76,51 @@ void create_audioplayer_pipeline(int channel_num) {
     esp_decoder_cfg_t decoder_cfg = DEFAULT_ESP_DECODER_CONFIG();
     esp_decoder = esp_decoder_init(&decoder_cfg, auto_decode, 5);
 
-    
-    ESP_LOGI(TAG, "[ 2.4 ] Register all elements to audio pipeline");
+    ESP_LOGI(TAG, "[ 2.4 ] Create Equalizer");
+    equalizer_cfg_t eq_cfg = DEFAULT_EQUALIZER_CONFIG();
+    eq_cfg.samplerate = 44100;
+    //int equalizer_gain[] = { -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13, -13}
+    eq_cfg.set_gain =
+        equalizer_gain; // The size of gain array should be the multiplication of NUMBER_BAND and number channels of audio stream data. The minimum of gain is -13 dB.
+    equalizer = equalizer_init(&eq_cfg);
+
+
+    ESP_LOGI(TAG, "[ 2.5 ] Register all elements to audio pipeline");
     if (!MEDIAPLAYER_ENABLED) 
       audio_pipeline_register(pipeline, http_stream_reader, "http");
     else 
       audio_pipeline_register(pipeline, fatfs_stream_reader, "file");
 
     audio_pipeline_register(pipeline, esp_decoder,        "esp");
+    audio_pipeline_register(pipeline, equalizer, "equalizer");
     audio_pipeline_register(pipeline, i2s_stream_writer,  "i2s");
 
     if  (!MEDIAPLAYER_ENABLED) {
-      ESP_LOGI(TAG, "[ 2.5 ] Link it together http_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
-      const char *link_tag[3] = {"http", "esp", "i2s"};
-      audio_pipeline_link(pipeline, &link_tag[0], 3);
+      ESP_LOGI(TAG, "[ 2.6 ] Link it together http_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
+      const char *link_tag[4] = {"http", "esp", "equalizer", "i2s"};
+      audio_pipeline_link(pipeline, &link_tag[0], 4);
     } else {
-      ESP_LOGI(TAG, "[2.5] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
-      const char *link_tag[3] = {"file", "esp", "i2s"};
-      audio_pipeline_link(pipeline, &link_tag[0], 3);
+      ESP_LOGI(TAG, "[2.6] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
+      const char *link_tag[4] = {"file", "esp", "equalizer", "i2s"};
+      audio_pipeline_link(pipeline, &link_tag[0], 4);
     }
    
     if (!MEDIAPLAYER_ENABLED) {
-      ESP_LOGI(TAG, "[ 2.6 ] Set up uri");
+      ESP_LOGI(TAG, "[ 2.7 ] Set up uri");
       // audio_element_set_uri(http_stream_reader, "http://streams.80s80s.de/wave/mp3-192");
       audio_element_set_uri(http_stream_reader,playlist[channel_num]);
     }
 
     // Example of using an audio event -- START
-    ESP_LOGI(TAG, "[ 2.7 ] Set up event listener");
+    ESP_LOGI(TAG, "[ 2.8 ] Set up event listener");
     
     audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
     evt = audio_event_iface_init(&evt_cfg);
 
-    ESP_LOGI(TAG, "[ 2.8 ] Listening event from all elements of pipeline");
+    ESP_LOGI(TAG, "[ 2.9 ] Listening event from all elements of pipeline");
     audio_pipeline_set_listener(pipeline, evt);
 
-    ESP_LOGI(TAG, "[ 2.9 ] Listening event from peripherals");
+    ESP_LOGI(TAG, "[ 2.10 ] Listening event from peripherals");
     audio_event_iface_set_listener(esp_periph_set_get_event_iface(set), evt);
 
     ESP_LOGI(TAG, "[ 3.0 ] Start audio_pipeline");
@@ -132,8 +141,10 @@ void terminate_audioplayer_pipeline() {
        audio_pipeline_unregister(pipeline, http_stream_reader);
     else 
        audio_pipeline_unregister(pipeline, fatfs_stream_reader);
+
     audio_pipeline_unregister(pipeline, i2s_stream_writer);
     audio_pipeline_unregister(pipeline, esp_decoder);
+    audio_pipeline_unregister(pipeline, equalizer);
 
     audio_pipeline_remove_listener(pipeline);
 
@@ -153,6 +164,7 @@ void terminate_audioplayer_pipeline() {
       
     audio_element_deinit(i2s_stream_writer);
     audio_element_deinit(esp_decoder);
+    audio_element_deinit(equalizer);
 
 }
 
@@ -214,6 +226,10 @@ void player(void *pvParameters) {
     esp_periph_start(set, wifi_handle);
     periph_wifi_wait_for_connected(wifi_handle, portMAX_DELAY);
     
+    // default gain settings for Equalizer
+    // https://espressif-docs.readthedocs-hosted.com/projects/esp-adf/en/latest/api-reference/audio-processing/equalizer.html#api-reference
+    for (int i=0; i<20; i++)
+      equalizer_gain[i] = -13; // -13dB
 
     create_audioplayer_pipeline(0);
 
@@ -278,17 +294,18 @@ void playerControlTask( void * pvParameters )
       {
         //ESP_LOGD(TAG, "Message to playerControlTask: %i",rxMsg->ucMessage);
 
-       //  Anforderung Kanalumschaltung direkt per GOTO
+       // Anforderung Kanalumschaltung direkt per GOTO
        if (rxMsg->ucMessage==GOTO_PRG) { 
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
            actual_channel=rxMsg->ucNumMessage;
-	       switchToChannel(actual_channel);
+	   switchToChannel(actual_channel);
          } else { // fuer Medienplayer
-	        switchToFile(rxMsg->ucNumMessage);   
-	      }
+	      switchToFile(rxMsg->ucNumMessage);   
+         }
        } // if (rxMsg->ucMessage==GOTO_PRG) {
         
-       //  Anforderung Kanalumschaltung
+
+       // Anforderung Kanalumschaltung
        if (rxMsg->ucMessage==NEXT_PRG) { 
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
            if (actual_channel<(channels_in_list-1))
@@ -301,6 +318,7 @@ void playerControlTask( void * pvParameters )
 	        switchToNextFile();   
            }
        } // if (rxMsg->ucMessage==NEXT_PRG) {
+
 
        if (rxMsg->ucMessage==PREV_PRG) {
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
@@ -315,16 +333,20 @@ void playerControlTask( void * pvParameters )
            }
        } // if (rxMsg->ucMessage==PREV_PRG) {
 
+      // Anforderung Start/Stop der kompletten Audiopipeline
       if (rxMsg->ucMessage==STOP) {
         if (pipeline_ready)
           audio_pipeline_pause(pipeline);
       } // if (rxMsg->ucMessage==STOP) {
 
+
       if (rxMsg->ucMessage==PLAY) {
-        if (pipeline_ready)
-          audio_pipeline_resume(pipeline);
+        if (pipeline_ready) 
+	  audio_pipeline_resume(pipeline);
       } // if (rxMsg->ucMessage==PLAY) {
 
+
+      // Anforderung Laustaerkeänderung AudioHAL
       if (rxMsg->ucMessage==VOLUP) {
   	    if (pipeline_ready) {
           if (volume<100-VOLUME_INC_DEC_STEP) {
@@ -333,6 +355,7 @@ void playerControlTask( void * pvParameters )
           }
 	    }
       } // if (rxMsg->ucMessage==VOLUP) {
+
 
       if (rxMsg->ucMessage==VOLDOWN) {
         if (pipeline_ready) {
@@ -343,13 +366,23 @@ void playerControlTask( void * pvParameters )
         }
       } // if (rxMsg->ucMessage==VOLDOWN) {
 
+ 
+      // Anforderung Equalizer-Update
+      if (rxMsg->ucMessage==UPDEQU) {
+        if (pipeline_ready) {     
+            // bring updated gain values to life 
+            audio_pipeline_pause(pipeline);
+            audio_pipeline_resume(pipeline);
+        }
+      } // if (rxMsg->ucMessage==UPDEQU) {
+
 
       // Anforderung Kanalinfo -> Antwort über xDisplaydQueue
       if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
         xDisplaydMessage.ucMessage = GET_CHANNEL_INFO;
         if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-	      xDisplaydMessage.iChannelNum = actual_channel;
-	      xDisplaydMessage.ucURI = playlist[actual_channel];
+            xDisplaydMessage.iChannelNum = actual_channel;
+	    xDisplaydMessage.ucURI = playlist[actual_channel];
         } else { // fuer Medienplayer
             xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
             xDisplaydMessage.ucURI = "SDCARD\0";	
@@ -363,7 +396,7 @@ void playerControlTask( void * pvParameters )
         xQueueSend( xDisplaydQueue, ( void * ) &txDisplaydMsg, ( TickType_t ) 0 );
       } // if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
 
-	
+      // Anforderung Modiwechsel Internetradio<->Mediaplayer
       if (rxMsg->ucMessage==ENABLE_INTERNETRADIO) {
         stop_mediaplayer_service();
 	if (pipeline_ready) {
@@ -382,7 +415,7 @@ void playerControlTask( void * pvParameters )
              pipeline_ready=true;
 	       }
          } // else
-      }
+      } // if (rxMsg->ucMessage==ENABLE_INTERNETRADIO) {
 
       if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
         if (start_mediaplayer_service()==ESP_OK) {
@@ -403,7 +436,7 @@ void playerControlTask( void * pvParameters )
         } //  if (start_mediaplayer_service()==ESP_OK)
       } // if (rxMsg->ucMessage==ENABLE_MEDIAPLAYER) {
 
-     }
+     } 
 
      vTaskDelay(10/portTICK_PERIOD_MS );
    }
