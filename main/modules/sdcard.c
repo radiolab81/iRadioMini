@@ -158,3 +158,36 @@ esp_err_t start_mediaplayer_service() {
 }
 /* MEDIAPLAYER END*/
 
+
+esp_err_t saveEQ_SDCard() {       
+    ESP_LOGI(TAG, "Try write EQ-settings to sdcard");
+    FILE *fp = fopen("/sdcard/eqsettings.txt", "w");
+    if(fp!=NULL) {
+      for (int i=0;i<20;i++) {
+        fprintf(fp,"%i\n",equalizer_gain[i]);
+      }
+      fclose(fp);
+      return ESP_OK;
+    } // if(fp!=NULL) {
+    else {
+      ESP_LOGE(TAG, "Cant write EQ settings to sdcard!");
+      return ESP_FAIL;
+    }
+} 
+
+
+esp_err_t readEQ_SDCard() {       
+    ESP_LOGI(TAG, "Try to read EQ-settings from sdcard");
+    FILE *fp = fopen("/sdcard/eqsettings.txt", "r");
+    if(fp!=NULL) {
+      for (int i=0;i<20;i++) {
+        fscanf (fp, "%d\n",  &equalizer_gain[i]);  
+      }
+      fclose(fp);
+      return ESP_OK;
+    } // if(fp!=NULL) {
+    else {
+      ESP_LOGE(TAG, "Cant read EQ settings from sdcard!");
+      return ESP_FAIL;
+    }
+} 
