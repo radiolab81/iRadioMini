@@ -6,6 +6,7 @@
 #include <sys/param.h>
 #include "esp_eth.h"
 #include <esp_http_server.h>
+#include "sdcard.h"
 
 #include "messages.h"
 
@@ -73,6 +74,22 @@ esp_err_t get_handler(httpd_req_t *req)
 	       pxMessage = &xMessage; 
 	       xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
             }
+
+            if (!strcmp(variable,"RESET")) {
+               for (int i=0; i<20; i++) {
+	          equalizer_gain[i]=-13; // -13db is ESP-ADF default setting
+               }          
+               buf[0]='\0'; // buf (URL-Anhang) löschen, damit die EQ-default Werte nicht gleich wieder überschrieben werden
+               struct AMessage *pxMessage;
+               xMessage.ucMessage = UPDEQU;
+               pxMessage = &xMessage; 
+               xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
+            }
+
+           if (!strcmp(variable,"SAVEEQ")) {
+               saveEQ_SDCard();
+           }
+
         } // if (httpd_query_key_value(buf, "command", variable, sizeof(variable)) == ESP_OK) {
         
        if (httpd_query_key_value(buf, "gotoStation", variable, sizeof(variable)) == ESP_OK) {
@@ -130,6 +147,7 @@ esp_err_t get_handler(httpd_req_t *req)
           xQueueSend( xPlayerQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );
        }
 
+
       } //  if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
  
      free(buf);
@@ -177,7 +195,7 @@ input[type=range][orient=vertical] \
 <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button button1\"/> \
 </form>");
 
-strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 70%\" size=\"25\" > ");
+strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 65%\" size=\"20\" > ");
 
 if (!MEDIAPLAYER_ENABLED) {
     // build station list
@@ -261,6 +279,10 @@ strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\
 itoa(equalizer_gain[9], itoa_buf, 10);
 strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
   <label for=\"16kHz\">16 kHz</label> \
+  <div> \
+  <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"SAVEEQ\" class=\"button button1\"/> \
+  <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"RESET\" class=\"button button1\"/> \
+  </div> \
 </fieldset></form>  ");
 
 
