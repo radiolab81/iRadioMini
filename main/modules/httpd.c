@@ -247,7 +247,7 @@ if (!MEDIAPLAYER_ENABLED) {
 } else {
 	// build SDcard mediafile list
         char *url_buf = NULL;
-	for (int i=0;i<sdcard_list_get_url_num(sdcard_list_handle);i++) {
+ 	for (int i=0;i<sdcard_list_get_url_num(sdcard_list_handle);i++) {
            strcat(HTML,"<option value=\"");
   	   itoa(i, itoa_buf, 10); 
   	   strcat(HTML,itoa_buf);
@@ -257,7 +257,7 @@ if (!MEDIAPLAYER_ENABLED) {
   	   strcat(HTML," </option> ");	
 	}
 	strcat(HTML,"</select></form>");
-	
+	sdcard_list_choose(sdcard_list_handle, actual_channel_or_file_ID, &url_buf); // restore pointer to correct file 
 } // if (!MEDIAPLAYER_ENABLED) {
 
 
