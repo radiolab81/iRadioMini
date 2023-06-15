@@ -175,6 +175,7 @@ void switchToChannel(int channel) {
        pipeline_ready=false;
        terminate_audioplayer_pipeline();
        create_audioplayer_pipeline(channel);
+       actual_channel_or_file_ID = channel;
        pipeline_ready=true;
      }
    }	   
@@ -186,16 +187,18 @@ void switchToNextFile() {
      terminate_audioplayer_pipeline();
      sdcard_list_next(sdcard_list_handle, 1, &url);
      create_audioplayer_pipeline(0);
+     actual_channel_or_file_ID = sdcard_list_get_url_id(sdcard_list_handle);
      pipeline_ready=true;      
    }
 }
 
 void switchToPrevFile() {
-   if (pipeline_ready) {
+   if (pipeline_ready) {    
      pipeline_ready=false;
      terminate_audioplayer_pipeline();
      sdcard_list_prev(sdcard_list_handle, 1, &url);
      create_audioplayer_pipeline(0);
+     actual_channel_or_file_ID = sdcard_list_get_url_id(sdcard_list_handle);
      pipeline_ready=true;
    }
 }   
@@ -206,6 +209,7 @@ void switchToFile(int url_id) {
      terminate_audioplayer_pipeline();
      sdcard_list_choose(sdcard_list_handle, url_id, &url);
      create_audioplayer_pipeline(0);
+     actual_channel_or_file_ID = sdcard_list_get_url_id(sdcard_list_handle);
      pipeline_ready=true;
    } 
 }
@@ -387,7 +391,7 @@ void playerControlTask( void * pvParameters )
 	    xDisplaydMessage.ucURI = playlist[actual_channel];
         } else { // fuer Medienplayer
             xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
-            xDisplaydMessage.ucURI = "SDCARD\0";	
+            xDisplaydMessage.ucURI = "SDCARD\0";
 	}
 
         audio_element_info_t music_info = {0};
