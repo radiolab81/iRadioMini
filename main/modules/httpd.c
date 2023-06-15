@@ -14,6 +14,7 @@ static const char *TAG = "HTTPD";
 
 static char* HTML;
 
+
 /* Our URI handler function to be called during GET / request */
 esp_err_t get_handler(httpd_req_t *req)
 {   
@@ -164,15 +165,28 @@ esp_err_t get_handler(httpd_req_t *req)
   background-color: #4CAF50; \
   border: none; \
   color: white; \
-  padding: 15px 32px; \
+  padding: 5px; \
   text-align: center; \
   text-decoration: none; \
   display: inline-block; \
   font-size: 16px; \
-  margin: 4px 2px; \
+  margin: 1px; 1px; \
   cursor: pointer; \
+  width: 50px; height: 50px; \
 }  \
-.button1 {width: 200px;} \
+.button_eqn { \
+ background-color: #4CAF50; \
+  border: none; \
+  color: white; \
+  padding: 5px; \
+  text-align: center; \
+  text-decoration: none; \
+  display: inline-block; \
+  font-size: 16px; \
+  margin: 1px; 1px; \
+  cursor: pointer; \
+  width: 200px; height: 40px; \
+} \
 input[type=range][orient=vertical] \
 { \
     writing-mode: bt-lr; /* IE */ \
@@ -181,18 +195,39 @@ input[type=range][orient=vertical] \
     height: 175px; \
     padding: 0 5px; \
 } \
+.animated-text { \
+  font-family: monospace; \
+  overflow: hidden; \
+  height:1.1em; \
+  word-wrap: break-word; \
+  white-space: nowrap; \
+  animation: typing 4s steps(100) forwards; \
+} \
+@keyframes typing { \
+   from { \
+      width: 0; \
+   } \
+   to { \
+      width: 100ch; \
+   } \
+} \
 </style> \
 </head> \
 <body style=\"background-color:powderblue;\"> \
-<center> \
-<h1>iRadioMini for ESP32</h1> \
-\
-<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Prev\"class=\"button button1\"/> \
-<form action=\"\"  method=\"get\"><input name=\"command\" type=\"submit\" value=\"Next\"class=\"button button1\"/> \
-<form action=\"\"  method=\"get\"><input name=\"command\" type=\"submit\" value=\"Stop\"class=\"button button1\"/> \
-<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Play\"class=\"button button1\"/> \
-<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol-\"class=\"button button1\"/> \
-<form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button button1\"/> \
+<center> ");
+
+// now playing ?
+strcat(HTML,"<p class=\"animated-text\"> iRadioMini on ESP32 now playing: <span id=\"nowPlaying\">0</span>");
+strcat(HTML," </p> ");
+
+// player controls
+strcat(HTML,"<form action=\"\" method=\"get\"> \
+<button name=\"command\" type=\"submit\"  value=\"Prev\"class=\"button\">Prev</button> \
+<button name=\"command\" type=\"submit\"  value=\"Next\"class=\"button\">Next</button> \
+<button name=\"command\" type=\"submit\"  value=\"Stop\"class=\"button\">Stop</button> \
+<button name=\"command\" type=\"submit\"  value=\"Play\"class=\"button\">Play</button> \
+<button name=\"command\" type=\"submit\"  value=\"Vol-\"class=\"button\">Vol-</button> \
+<button name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button\">Vol+</button> \
 </form>");
 
 strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 65%\" size=\"20\" > ");
@@ -280,14 +315,28 @@ itoa(equalizer_gain[9], itoa_buf, 10);
 strcat(HTML,itoa_buf); strcat(HTML,"\" step=\"1\" onchange=\"this.form.submit()\"> \
   <label for=\"16kHz\">16 kHz</label> \
   <div> \
-  <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"SAVEEQ\" class=\"button button1\"/> \
-  <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"RESET\" class=\"button button1\"/> \
+  <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"SAVEEQ\" class=\"button button_eqn\"/> \
+  <form action=\"\" method=\"get\"><input name=\"command\" type=\"submit\"  value=\"RESET\" class=\"button button_eqn\"/> \
   </div> \
 </fieldset></form>  ");
 
-
-
 strcat(HTML,"</center> \
+<script> \
+setInterval(function() { \
+  getData(); \
+}, 2000); \
+function getData() { \
+  var xhttp = new XMLHttpRequest(); \
+  xhttp.onreadystatechange = function() { \
+    if (this.readyState == 4 && this.status == 200) { \
+      document.getElementById(\"nowPlaying\").innerHTML = \
+      this.responseText; \
+    } \
+  }; \
+  xhttp.open(\"GET\", \"nowPlaying\", true); \
+  xhttp.send(); \
+} \
+</script> \
 </body> \
 </html> \
 ");
@@ -329,6 +378,24 @@ esp_err_t post_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+
+esp_err_t XMLHttpRequest_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "XMLHttpRequest_handler");
+    char resp[512] ="\0"; 
+    if (!MEDIAPLAYER_ENABLED) {
+      strcat(resp,playlist[actual_channel_or_file_ID]);
+    } else {
+      //strcat(resp,"SDCARD");
+      char *url_buf = NULL;
+      sdcard_list_choose(sdcard_list_handle, actual_channel_or_file_ID, &url_buf);
+      strcat(resp,url_buf);
+    }
+    httpd_resp_set_type(req, "text/plain");    
+    httpd_resp_send(req, resp, strlen(resp));
+    return ESP_OK;
+}
+
 /* URI handler structure for GET / */
 httpd_uri_t uri_get = {
     .uri      = "/",
@@ -342,6 +409,14 @@ httpd_uri_t uri_post = {
     .uri      = "/",
     .method   = HTTP_POST,
     .handler  = post_handler,
+    .user_ctx = NULL
+};
+
+
+httpd_uri_t uri_XMLHttpRequest_handler = {
+    .uri      = "/nowPlaying",
+    .method   = HTTP_GET,
+    .handler  = XMLHttpRequest_handler,
     .user_ctx = NULL
 };
 
@@ -360,6 +435,7 @@ httpd_handle_t start_webserver(void)
         /* Register URI handlers */
         httpd_register_uri_handler(server, &uri_get);
         httpd_register_uri_handler(server, &uri_post);
+        httpd_register_uri_handler(server, &uri_XMLHttpRequest_handler);
     }
     /* If server failed to start, handle will be NULL */
     return server;
