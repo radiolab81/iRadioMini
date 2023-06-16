@@ -230,7 +230,7 @@ strcat(HTML,"<form action=\"\" method=\"get\"> \
 <button name=\"command\" type=\"submit\"  value=\"Vol+\"class=\"button\">Vol+</button> \
 </form>");
 
-strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 65%\" size=\"20\" > ");
+strcat(HTML,"<br> <form action=\"\" method=\"GET\"> <select name=\"gotoStation\" id=\"Stations\" onchange=\"this.form.submit()\" STYLE=\"width: 52%\" size=\"20\" > ");
 
 if (!MEDIAPLAYER_ENABLED) {
     // build station list
