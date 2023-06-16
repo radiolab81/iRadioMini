@@ -288,7 +288,6 @@ void playerControlTask( void * pvParameters )
 {
   esp_log_level_set(TAG, ESP_LOG_INFO);
 
-  int actual_channel = 0;
   struct AMessage *rxMsg; 
   struct ADisplaydMessage *txDisplaydMsg;
   
@@ -303,8 +302,8 @@ void playerControlTask( void * pvParameters )
        // Anforderung Kanalumschaltung direkt per GOTO
        if (rxMsg->ucMessage==GOTO_PRG) { 
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-           actual_channel=rxMsg->ucNumMessage;
-	   switchToChannel(actual_channel);
+           actual_channel_or_file_ID=rxMsg->ucNumMessage;
+	   switchToChannel(actual_channel_or_file_ID);
          } else { // fuer Medienplayer
 	      switchToFile(rxMsg->ucNumMessage);   
          }
@@ -314,12 +313,12 @@ void playerControlTask( void * pvParameters )
        // Anforderung Kanalumschaltung
        if (rxMsg->ucMessage==NEXT_PRG) { 
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-           if (actual_channel<(channels_in_list-1))
-	          actual_channel++;
+           if (actual_channel_or_file_ID<(channels_in_list-1))
+	          actual_channel_or_file_ID++;
             else { 
-	          actual_channel=0;
+	          actual_channel_or_file_ID=0;
 	        }	
-	        switchToChannel(actual_channel);
+	        switchToChannel(actual_channel_or_file_ID);
          } else { // fuer Medienplayer
 	        switchToNextFile();   
            }
@@ -328,12 +327,12 @@ void playerControlTask( void * pvParameters )
 
        if (rxMsg->ucMessage==PREV_PRG) {
          if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-           if (actual_channel==0)
-	         actual_channel=(channels_in_list-1);
+           if (actual_channel_or_file_ID==0)
+	         actual_channel_or_file_ID=(channels_in_list-1);
            else {
-	         actual_channel--;    
+	         actual_channel_or_file_ID--;
 	       }
-	       switchToChannel(actual_channel);
+	       switchToChannel(actual_channel_or_file_ID);
          } else { // fuer Medienplayer
             switchToPrevFile();
            }
@@ -387,8 +386,8 @@ void playerControlTask( void * pvParameters )
       if (rxMsg->ucMessage==GET_CHANNEL_INFO) {
         xDisplaydMessage.ucMessage = GET_CHANNEL_INFO;
         if (!MEDIAPLAYER_ENABLED) { // fuer Internetradio
-            xDisplaydMessage.iChannelNum = actual_channel;
-	    xDisplaydMessage.ucURI = playlist[actual_channel];
+            xDisplaydMessage.iChannelNum = actual_channel_or_file_ID;
+	    xDisplaydMessage.ucURI = playlist[actual_channel_or_file_ID];
         } else { // fuer Medienplayer
             xDisplaydMessage.iChannelNum = sdcard_list_get_url_id(sdcard_list_handle);
             xDisplaydMessage.ucURI = "SDCARD\0";
@@ -410,6 +409,7 @@ void playerControlTask( void * pvParameters )
             pipeline_ready=false;
             terminate_audioplayer_pipeline();
             MEDIAPLAYER_ENABLED = false;
+            actual_channel_or_file_ID = 0;
             create_audioplayer_pipeline(0);
             pipeline_ready=true;
           }
@@ -417,6 +417,7 @@ void playerControlTask( void * pvParameters )
          else {
            if (playlist[0]) {
              MEDIAPLAYER_ENABLED = false;
+             actual_channel_or_file_ID = 0;
              create_audioplayer_pipeline(0);
              pipeline_ready=true;
 	       }
@@ -429,13 +430,15 @@ void playerControlTask( void * pvParameters )
             pipeline_ready=false;
             terminate_audioplayer_pipeline();
 	    MEDIAPLAYER_ENABLED = true;
-            sdcard_list_next(sdcard_list_handle, 1, &url);
+            actual_channel_or_file_ID = 0;
+            sdcard_list_choose(sdcard_list_handle, actual_channel_or_file_ID, &url);
             create_audioplayer_pipeline(0);
             pipeline_ready=true;      
 	      } 
            else {
             MEDIAPLAYER_ENABLED = true;
-            sdcard_list_next(sdcard_list_handle, 1, &url);
+            actual_channel_or_file_ID = 0;
+            sdcard_list_choose(sdcard_list_handle, actual_channel_or_file_ID, &url);
             create_audioplayer_pipeline(0);
             pipeline_ready=true; 
            } // else
