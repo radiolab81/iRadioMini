@@ -23,6 +23,9 @@ Programmumschaltung / Lautstärkeänderung mit (Micro-)Taster, Inkrementaldrehge
 
 Die Steuerung wird wie beim iRadio für Raspberry als Daemon/Prozess "gpiod" realisiert.
 
+![httpd1](https://github.com/BM45/iRadioMini/blob/master/pics4www/httpd_wf.jpg)
+Abb.: Demo-Webinterface des httpd mit experimentellem EQ (die Werte des EQ können natürlich auch in jeder anderen HMI-Szenerie gesetzt/angzeigt werden) 
+
 ## Unterstützte Displays für Nutzerschnittstelle:
 - HD44780-kompatible Displays (auch über I2C mit PCF8574/5)
 
