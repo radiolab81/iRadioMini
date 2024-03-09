@@ -53,10 +53,17 @@ periph_wifi_cfg_t readWifiConfigSDCard() {
       ESP_LOGE(TAG, "No wifi.txt on sdcard!");
     }
 
-    periph_wifi_cfg_t wifi_cfg = {
-        .ssid = ssid,
-        .password = psk,
+    periph_wifi_cfg_t wifi_cfg  = {
+       .wifi_config = {
+          .sta = {
+            .ssid = { "" },
+            .password = { "" },
+          },
+       },
     };
+    
+    strncpy((char*)wifi_cfg.wifi_config.sta.ssid,(char*)ssid, 32);
+    strncpy((char*)wifi_cfg.wifi_config.sta.password,(char*)psk, 64); 
     
     return wifi_cfg;
 }
