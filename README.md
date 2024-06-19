@@ -114,8 +114,3 @@ Nach einem Neustart wird die Senderliste von der SD-Karte automatisch eingelesen
 Achtung: In der playlist.m3u darf pro Zeile nur die URL einer Internetradiostation stehen. Keine M3U-Metadaten oder verschachtelte Playlisten verwenden!
 Standardmäßig werden Internetradiostreams in den Formaten MP3, AAC, M4A, WAV akzeptiert. 
 Weitere Formatdekoder (FLAC, OGG) können innerhalb der Software aktiviert werden.
-
-_____________________________________________________________________________________
-Weiterer Support im Radio-Bastler-Forum unter: https://www.radio-bastler.de 
-
-Bei Fragen meldet Euch einfach im Radio-Bastler-Forum an.
