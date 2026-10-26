@@ -1,5 +1,8 @@
+>[!TIP]
+>#### iRadioMini2 (eine Portierung auf ESP-IDF 6.1, ESP-GMF) -> https://github.com/radiolab81/iRadioMini2
+
 # iRadioMini für ESP32
-Ein Softwarebaukasten für den Aufbau neuer Radios oder Umbau alter Radios zu einem Internetradio auf ESP32 ADF-Basis.
+Ein Softwarebaukasten für den Aufbau neuer Radios oder Umbau alter Radios zu einem Internetradio auf ESP32 (ESP-IDF 4.x,ADF-Basis 2.x).
 
 Das iRadioMini ist eine Portierung unseres iRadio für Raspberry (https://github.com/radiolab81/iRadio) auf ESP32. 
 
